@@ -345,9 +345,23 @@ iframe { width: 100%; height: 320px; border: 1px solid var(--line); border-radiu
 .empty p { font-size: 14px; }
 /* Rich text */
 #editor { height: 220px; }
-.ql-container { font-size: 13px !important; }
-.ql-toolbar { background: #fff; border-bottom: 1px solid var(--line) !important; }
-.ql-editor { min-height: 180px; }
+  .ql-container { font-size: 14px !important; }
+  .ql-toolbar { background: #fff; border-bottom: 1px solid var(--line) !important; }
+  .ql-editor { min-height: 180px; font-family: Arial, Helvetica, sans-serif; }
+  .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="arial"]::before, .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="arial"]::before { content: "Arial"; font-family: Arial, sans-serif; }
+  .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="calibri"]::before, .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="calibri"]::before { content: "Calibri"; font-family: Calibri, Candara, Segoe, "Segoe UI", sans-serif; }
+  .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="georgia"]::before, .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="georgia"]::before { content: "Georgia"; font-family: Georgia, serif; }
+  .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="verdana"]::before, .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="verdana"]::before { content: "Verdana"; font-family: Verdana, sans-serif; }
+  .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="times-new-roman"]::before, .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="times-new-roman"]::before { content: "Times"; font-family: "Times New Roman", serif; }
+  .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="courier-new"]::before, .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="courier-new"]::before { content: "Courier"; font-family: "Courier New", monospace; }
+  .ql-font-arial { font-family: Arial, Helvetica, sans-serif; }
+  .ql-font-calibri { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; }
+  .ql-font-georgia { font-family: Georgia, serif; }
+  .ql-font-verdana { font-family: Verdana, Geneva, sans-serif; }
+  .ql-font-times-new-roman { font-family: "Times New Roman", Times, serif; }
+  .ql-font-courier-new { font-family: "Courier New", Courier, monospace; }
+  .ql-snow .ql-picker.ql-size .ql-picker-label::before, .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-value); }
+  .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before, .ql-snow .ql-picker.ql-size .ql-picker-item:not([data-value])::before { content: "14px"; }
 .schedule-row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
 .schedule-row input[type="datetime-local"] { width: auto; flex: 1; }
 .tracking-table td { font-size: 12px; }
@@ -420,6 +434,42 @@ iframe { width: 100%; height: 320px; border: 1px solid var(--line); border-radiu
 <script src="papaparse.min.js"></script>
 <script>
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const emailFontWhitelist = ['sans-serif', 'serif', 'monospace', 'arial', 'calibri', 'georgia', 'verdana', 'times-new-roman', 'courier-new'];
+const emailFontFamilies = { arial: 'Arial, Helvetica, sans-serif', calibri: 'Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif', georgia: 'Georgia, serif', verdana: 'Verdana, Geneva, sans-serif', 'times-new-roman': '"Times New Roman", Times, serif', 'courier-new': '"Courier New", Courier, monospace', 'sans-serif': 'Arial, Helvetica, sans-serif', serif: 'Georgia, serif', monospace: '"Courier New", Courier, monospace' };
+const emailSizeWhitelist = ['10px','12px','14px','16px','18px','20px','24px','28px','32px'];
+if (window.Quill) {
+  const Font = Quill.import('formats/font');
+  Font.whitelist = emailFontWhitelist;
+  Quill.register(Font, true);
+  const Size = Quill.import('attributors/style/size');
+  Size.whitelist = emailSizeWhitelist;
+  Quill.register(Size, true);
+}
+const emailToolbar = [
+  [{ font: emailFontWhitelist }, { size: emailSizeWhitelist }],
+  [{ header: [1, 2, false] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ color: [] }, { background: [] }],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  [{ align: [] }],
+  ['link', 'image'],
+  ['clean']
+];
+const templateToolbar = [
+  [{ font: emailFontWhitelist }, { size: emailSizeWhitelist }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ color: [] }, { background: [] }],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  [{ align: [] }],
+  ['link', 'image'],
+  ['clean']
+];
+const inlineEmailFonts = html => String(html || '').replace(/class="([^"]*\bql-font-([a-z0-9-]+)\b[^"]*)"/gi, (m, classes, font) => {
+  const family = emailFontFamilies[font];
+  const rest = classes.replace(/\bql-font-[a-z0-9-]+\b/gi, '').replace(/\s+/g, ' ').trim();
+  return `${rest ? `class="${rest}" ` : ''}${family ? `style="font-family:${family};"` : ''}`.trim() ? `${rest ? `class="${rest}" ` : ''}${family ? `style="font-family:${family};"` : ''}` : m;
+}).replace(/(<[^>]+)style="font-family:([^"]+);"([^>]*style=")([^"]*")/gi, '$1$3font-family:$2;$4');
+const getEditorHtml = q => inlineEmailFonts(q ? q.root.innerHTML : '');
 let T = sessionStorage.t || '', R = sessionStorage.r || '', CO = sessionStorage.cid || '', cur = 'send';
 const $ = s => document.querySelector(s);
 const LOGIN = $('#login'), APP = $('#app');
@@ -747,13 +797,7 @@ async function send() {
   };
   // init quill
   if (quill) quill.root.innerHTML = '';
-  quill = new Quill('#editor', { theme: 'snow', placeholder: 'Compose email body…', modules: { toolbar: [
-    [{ header: [1, 2, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    ['link', 'image'],
-    ['clean']
-  ]} });
+  quill = new Quill('#editor', { theme: 'snow', placeholder: 'Compose email body…', modules: { toolbar: emailToolbar } });
   const getValues = () => ({ ...Object.fromEntries([...document.querySelectorAll('#tflds [data-fld]')].map(el => [el.dataset.fld, el.value])), title: $('#send-title').value, company_name: $('#send-company-name').value });
   const fieldLabel = key => key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   const replaceText = (text, values) => text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => String(values[key] ?? ''));
@@ -836,7 +880,7 @@ async function send() {
   };
   const renderAtch = () => { atchList.innerHTML = attachmentItems.map(a => `<span class="recipient-pill">📎 ${esc(a.original_name)} <span class="x" data-atch="${a.id}">×</span></span>`).join(''); };
   renderAtch();
-  const getHtml = () => quill ? quill.root.innerHTML : '';
+  const getHtml = () => getEditorHtml(quill);
   const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const syncRecipientFields = () => {
     const contact = recipientPills.length === 1 ? contactsList.find(item => item.email.toLowerCase() === recipientPills[0].toLowerCase()) : null;
@@ -977,7 +1021,7 @@ async function tpl() {
       </div>
       <p id="tmsg" class="err"></p><button class="p" id="tsv">Save template</button>
     </div>`;
-  let tquill = new Quill('#teditor', { theme: 'snow', placeholder: 'Template body…', modules: { toolbar: [['bold','italic','underline'],[{list:'ordered'},{list:'bullet'}],['link','image'],['clean']] } });
+  let tquill = new Quill('#teditor', { theme: 'snow', placeholder: 'Template body…', modules: { toolbar: templateToolbar } });
   let savedSchema = [];
   const escId = s => String(s).replace(/[^a-z0-9]/gi, '_');
   const tplKeys = () => [...new Set([...(tquill.root.innerHTML + $('#tsj').value).matchAll(/{{\s*(\w+)\s*}}/g)].map(m => m[1]))];
@@ -1002,7 +1046,7 @@ async function tpl() {
     const vals = Object.fromEntries([...document.querySelectorAll('#tfvals [data-preview-field]')].map(el => [el.dataset.previewField, el.value]));
     const fill = text => text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => esc(vals[key] ?? ''));
     $('#tpj').textContent = fill($('#tsj').value) || '(no subject)';
-    $('#tpb').innerHTML = fill(tquill.root.innerHTML) || '(empty)';
+    $('#tpb').innerHTML = fill(getEditorHtml(tquill)) || '(empty)';
   };
   const tplRefresh = () => { tplRenderFields(); tplRenderVals(); tplRenderPreview(); };
   const spacingBlocks = 'p,h1,h2,h3,h4,h5,h6,li,blockquote,pre';
@@ -1063,7 +1107,7 @@ async function tpl() {
   $('#tsv').onclick = async () => {
     const id = $('#tsv').dataset.upd;
     const fields = tplSchema();
-    const body = { name: $('#tn').value, subject: $('#tsj').value, html: tquill.root.innerHTML, fields };
+    const body = { name: $('#tn').value, subject: $('#tsj').value, html: getEditorHtml(tquill), fields };
     try {
       if (id) { await api('/api/templates/' + id, { m: 'PUT', b: body }); delete $('#tsv').dataset.upd; $('#tsv').textContent = 'Save template'; }
       else await api('/api/templates', { b: body });
