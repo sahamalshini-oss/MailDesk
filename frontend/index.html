@@ -682,9 +682,9 @@ async function send() {
     const placeholders = [...new Set([...(t?.subject || '').concat(t?.html || '').matchAll(/{{\s*(\w+)\s*}}/g)].map(match => match[1]))];
     const fields = [...new Set([...schema.keys(), ...placeholders])].filter(key => key !== 'title' && key !== 'company_name').map(key => ({ ...(schema.get(key) || { key, label: fieldLabel(key), type: 'text' }), ...(key === 'due_date' ? { type: 'date' } : {}) }));
     $('#tflds').innerHTML = `<label style="margin-top:12px;">Personalization fields</label><div class="g">${fields.map(field => `<div><label>${esc(field.label || field.key)}</label>${field.key === 'signature' ? `<textarea id="sfld-${field.key}" data-fld="${field.key}" rows="3" style="width:100%;min-height:84px;resize:vertical;padding:6px 9px;border:1px solid #d5e6ff;border-radius:8px;font:inherit;" placeholder="${esc(field.label || field.key)}">${esc(defaults[field.key] || '')}</textarea>` : `<input id="sfld-${field.key}" data-fld="${field.key}" type="${field.type === 'date' ? 'date' : 'text'}" style="width:100%;padding:6px 9px;border:1px solid #d5e6ff;border-radius:8px;font:inherit;" value="${esc(defaults[field.key] || '')}" placeholder="${esc(field.label || field.key)}">`}</div>`).join('')}</div>`;
-    if (defaults.first_name) $('#sfld-first_name').dataset.autofilled = 'contact';
-    if (defaults.client_name) $('#sfld-client_name').dataset.autofilled = 'contact';
-    if (defaults.signature) $('#sfld-signature').dataset.autofilled = 'sender';
+    const elFn = $('#sfld-first_name'); if (defaults.first_name && elFn) elFn.dataset.autofilled = 'contact';
+    const elCn = $('#sfld-client_name'); if (defaults.client_name && elCn) elCn.dataset.autofilled = 'contact';
+    const elSg = $('#sfld-signature'); if (defaults.signature && elSg) elSg.dataset.autofilled = 'sender';
     sendRenderPreview();
   };
   const sendRenderPreview = () => {
