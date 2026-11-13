@@ -182,6 +182,13 @@ tbody tr:hover { background: #f8fbff; }
 .company-logo-btn.on { border-color: var(--ac); box-shadow: var(--ring); }
 .company-logo-btn img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
 .company-logo-fallback { font-size: 13px; font-weight: 800; color: var(--ac); line-height: 1; text-align: center; }
+@keyframes logoPop {
+  0% { transform: scale(1) rotate(0deg); }
+  40% { transform: scale(1.2) rotate(-8deg); }
+  70% { transform: scale(0.95) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.company-logo-btn.animating { animation: logoPop 0.7s cubic-bezier(.34,1.56,.64,1); }
 .user-chip { font-size: 13px; color: var(--mut); background: rgba(255,255,255,0.8); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; }
 .dashboard { display: flex; flex-direction: column; gap: 18px; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
@@ -450,7 +457,15 @@ function selectCompany(id, name) {
   sessionStorage.cid = CO;
   sessionStorage.cname = name || '';
   applyTheme(CO);
-  document.querySelectorAll('.company-logo-btn').forEach(b => b.classList.toggle('on', b.dataset.cid === CO));
+  const btns = document.querySelectorAll('.company-logo-btn');
+  btns.forEach(b => b.classList.toggle('on', b.dataset.cid === CO));
+  const sel = document.querySelector('.company-logo-btn.on');
+  if (sel) {
+    sel.classList.remove('animating');
+    void sel.offsetHeight;
+    sel.classList.add('animating');
+    setTimeout(() => sel.classList.remove('animating'), 700);
+  }
   go(cur);
 }
 function renderCompanyPicker(companies) {
