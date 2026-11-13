@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MailDesk</title>
+<link rel="stylesheet" href="quill.snow.css">
+<style>
+:root{
+  --bg:#f3f8ff;--ink:#0f172a;--mut:#4f6fa8;--card:#ffffff;--line:#dfeafe;--ac:#1e2862;--ac2:#161f47;--nav:#0651a7;--ok:#1d4ed8;--bad:#2563eb;--ring:0 0 0 3px rgba(30,40,98,0.12);
+  --panel:#f8fbff;--shadow:0 8px 22px rgba(30,40,98,0.06);
+}
+body.theme-1{--ac:#1e2862;--ac2:#0e244a;--nav:#0a1b33;--bg:#eef3fb;--ink:#16233a;--mut:#2c4a7a;--line:#d7e2f8;--card:#ffffff;--panel:#eef3fb;--ring:0 0 0 3px rgba(17,48,101,0.15);}
+body.theme-1 { background: linear-gradient(180deg, #e5ecf6 0%, #eef3fb 180px, #eef3fb 100%); }
+body.theme-1 .card { background: #ffffff; border: 1px solid #d7e2f8; box-shadow: 0 8px 22px rgba(17,48,101,0.06); }
+body.theme-1 button.p { background: linear-gradient(135deg, #113065 0%, #1d4ed8 100%); box-shadow: 0 10px 18px rgba(17,48,101,0.18); }
+body.theme-1 button.p:active { background: #0e244a; }
+body.theme-1 button.danger { color: #113065; border-color: rgba(17,48,101,0.2); }
+body.theme-1 button.danger:hover { background: #e5ecf6; }
+body.theme-1 .stat-card { background: #e5ecf6; border: 1px solid #bcd2f1; }
+body.theme-1 .stat-chip { background: rgba(17,48,101,0.06); color: #113065; }
+body.theme-1 .compose-panel { background: linear-gradient(135deg, #e5ecf6 0%, #ffffff 78%); }
+body.theme-1 .activity-panel { background: #113065; border-color: #113065; }
+body.theme-1 .pill { color: #113065; background: rgba(17,48,101,0.08); }
+body.theme-1 .template-page { border-color: #113065; background: linear-gradient(155deg, #051224 0%, #113065 30%, #eef3fb 72%, #ffffff 100%); }
+body.theme-1 .template-page .template-section h3 { color: #fff; }
+body.theme-1 .template-form { border-color: #113065; }
+body.theme-1 .template-field { background: #e5ecf6; color: #113065; }
+body.theme-1 .badge { background: #ecf4ff; color: #113065; border-color: #d5e6ff; }
+body.theme-1 .badge.ok { background: #ecf4ff; color: #113065; border-color: #d5e6ff; }
+body.theme-1 .badge.bad { background: #f3f8ff; color: #113065; border-color: #d5e6ff; }
+body.theme-1 input:focus, body.theme-1 select:focus, body.theme-1 textarea:focus { border-color: #113065; outline: 0 0 0 3px rgba(17,48,101,0.12); }
+body.theme-1 .sidebar { background: linear-gradient(180deg, #0a1b33 0%, #142e5c 100%); }
+body.theme-1 .sidebar button { color: #dbeafc; }
+body.theme-1 .sidebar button.on { background: rgba(255,255,255,0.08); border-left-color: #7eb3ff; }
+body.theme-1 .sidebar button:hover:not(.on) { background: rgba(255,255,255,0.04); color: #fff; }
+body.theme-1 .sidebar .brand .dot { background: linear-gradient(135deg, #cbd5e1 0%, #ffffff 100%); box-shadow: 0 0 0 4px rgba(255,255,255,0.12); }
+body.theme-2{--ac:#1e2862;--ac2:#0f5f32;--nav:#0d2c1d;--bg:#f0f9f0;--ink:#17321e;--mut:#3a6b4a;--line:#d1e8d1;--card:#ffffff;--panel:#eef7ee;--ring:0 0 0 3px rgba(21,128,61,0.15);}
+body.theme-2 { background: linear-gradient(180deg, #e7f4e7 0%, #f0f9f0 180px, #f0f9f0 100%); }
+body.theme-2 .card { background: #ffffff; border: 1px solid #d1e8d1; box-shadow: 0 8px 22px rgba(21,128,61,0.06); }
+body.theme-2 button.p { background: linear-gradient(135deg, #15803d 0%, #22c55e 100%); box-shadow: 0 10px 18px rgba(21,128,61,0.18); }
+body.theme-2 button.p:active { background: #0f5f32; }
+body.theme-2 button.danger { color: #15803d; border-color: rgba(21,128,61,0.2); }
+body.theme-2 button.danger:hover { background: #e7f4e7; }
+body.theme-2 .stat-card { background: #ecf7ee; border: 1px solid #bbdfbb; }
+body.theme-2 .compose-panel { background: linear-gradient(135deg, #e7f4e7 0%, #ffffff 78%); }
+body.theme-2 .activity-panel { background: #15803d; border-color: #15803d; }
+body.theme-2 .pill { color: #15803d; background: rgba(21,128,61,0.08); }
+body.theme-2 .template-page { border-color: #15803d; background: linear-gradient(155deg, #052b14 0%, #15803d 30%, #f0f9f0 72%, #ffffff 100%); }
+body.theme-2 .template-page .template-section h3 { color: #fff; }
+body.theme-2 .template-form { border-color: #15803d; }
+body.theme-2 .template-field { background: #e7f4e7; color: #15803d; }
+body.theme-2 .badge { background: #ecf7ee; color: #15803d; border-color: #bbdfbb; }
+body.theme-2 .badge.ok { background: #ecf7ee; color: #15803d; border-color: #bbdfbb; }
+body.theme-2 .badge.bad { background: #f3f8ff; color: #15803d; border-color: #bbdfbb; }
+body.theme-2 input:focus, body.theme-2 select:focus, body.theme-2 textarea:focus { border-color: #15803d; outline: 0 0 0 3px rgba(21,128,61,0.12); }
+body.theme-2 .sidebar { background: linear-gradient(180deg, #33533e 0%, #2a4433 100%); }
+body.theme-2 .sidebar button { color: #dfeafc; }
+body.theme-2 .sidebar button.on { background: rgba(255,255,255,0.08); border-left-color: #ffffff; }
+body.theme-2 .sidebar button:hover:not(.on) { background: rgba(255,255,255,0.04); color: #fff; }
+body.theme-2 .sidebar .brand .dot { background: linear-gradient(135deg, #cbd5c1 0%, #ffffff 100%); box-shadow: 0 0 0 4px rgba(255,255,255,0.12); }
+body.theme-3{--ac:#1e2862;--ac2:#000066;--nav:#000040;--bg:#e2e5ea;--ink:#1f2937;--mut:#5b6a7a;--line:#dcdce2;--card:#ffffff;--panel:#e9eaee;--ring:0 0 0 3px rgba(0,0,128,0.15);}
+body.theme-3 { background: linear-gradient(180deg, #d8dbe0 0%, #e2e5ea 180px, #e2e5ea 100%); }
+body.theme-3 .sidebar { background: linear-gradient(180deg, #000040 0%, #000066 100%); }
+body.theme-3 .sidebar button { color: #cbd5e1; }
+body.theme-3 .sidebar button.on { background: rgba(255,255,255,0.06); border-left-color: #a5b4c4; }
+body.theme-3 .sidebar button:hover:not(.on) { background: rgba(255,255,255,0.03); color: #fff; }
+body.theme-3 .sidebar .brand .dot { background: linear-gradient(135deg, #a5b4c4 0%, #ffffff 100%); box-shadow: 0 0 0 4px rgba(165,180,196,0.12); }
+body.theme-3 .card { background: #ffffff; border: 1px solid #dcdce2; color: #000080; box-shadow: 0 8px 22px rgba(0,0,128,0.06); }
+body.theme-3 .card h3, body.theme-3 .card h4 { color: #000080; }
+body.theme-3 button.p { background: linear-gradient(135deg, #000080 0%, #0000a0 100%); box-shadow: 0 10px 18px rgba(0,0,128,0.18); }
+body.theme-3 button.p:active { background: #000066; }
+body.theme-3 button.danger { color: #000080; border-color: rgba(0,0,128,0.2); }
+body.theme-3 button.danger:hover { background: #d8dbe0; }
+body.theme-3 .stat-card { background: #e9eaee; border: 1px solid #d1d3d9; color: #000080; }
+body.theme-3 .stat-card .stat-top { color: #5b6a7a; }
+body.theme-3 .stat-card .stat-value { color: #000080; }
+body.theme-3 .stat-card .stat-foot { color: #8c98a5; }
+body.theme-3 .stat-card .stat-trend.up { color: #000080; }
+body.theme-3 .stat-card .stat-trend.down { color: #ff4d4d; }
+body.theme-3 .stat-chip { background: rgba(0,0,128,0.06); color: #000080; }
+body.theme-3 .compose-panel { background: linear-gradient(135deg, #e9eaee 0%, #ffffff 78%); }
+body.theme-3 .activity-panel { background: #000080; border-color: #000080; color: #fff; }
+body.theme-3 .activity-panel .activity li { border-color: rgba(255,255,255,0.12); }
+body.theme-3 .activity-panel .activity .meta span { color: #a5b4c4; }
+body.theme-3 .activity-panel .activity .score { color: #a5b4c4; }
+body.theme-3 .panel { background: #ffffff; border: 1px solid #dcdce2; color: #000080; }
+body.theme-3 .pill { color: #000080; background: rgba(0,0,128,0.08); }
+body.theme-3 .template-page { border-color: #000080; background: linear-gradient(155deg, #000040 0%, #000080 30%, #e2e5ea 72%, #ffffff 100%); }
+body.theme-3 .template-page .template-section h3 { color: #fff; }
+body.theme-3 .template-form { border-color: #000080; }
+body.theme-3 .template-field { background: #e9eaee; color: #000080; border: 1px solid #dcdce2; }
+body.theme-3 .template-card { background: #ffffff; border: 1px solid #dcdce2; color: #000080; }
+body.theme-3 .template-subject { color: #8c98a5; }
+body.theme-3 .badge { background: #e9eaee; color: #000080; border-color: #c7c9cf; }
+body.theme-3 .badge.ok { background: #e9eaee; color: #000080; border-color: #c7c9cf; }
+body.theme-3 .badge.bad { background: #f3f8ff; color: #ff4d4d; border-color: #c7c9cf; }
+body.theme-3 input, body.theme-3 select, body.theme-3 textarea { background: #ffffff; border: 1px solid #dcdce2; color: #000080; }
+body.theme-3 input:focus, body.theme-3 select:focus, body.theme-3 textarea:focus { border-color: #000080; outline: 0 0 0 3px rgba(0,0,128,0.12); }
+body.theme-3 label { color: #000080; }
+body.theme-3 .err { color: #ff4d4d; }
+body.theme-3 .ok { color: #000080; }
+body.theme-3 tbody tr:hover { background: rgba(0,0,128,0.04); }
+body.theme-3 .small, body.theme-3 .muted { color: #5b6a7a; }
+body.theme-3 .user-chip { background: rgba(255,255,255,0.8); border: 1px solid #dcdce2; color: #000080; }
+body.theme-3 .company-picker select { background: #ffffff; border: 1px solid #dcdce2; color: #000080; }
+body.theme-4{--ac:#1e2862;--ac2:#1f6f8b;--nav:#0b2d5c;--bg:#e4f4fb;--ink:#163a4a;--mut:#2e6b84;--line:#bfe0f0;--card:#ffffff;--panel:#eef8fb;--ring:0 0 0 3px rgba(31,111,139,0.18);}
+body.theme-4 { background: linear-gradient(135deg, #cfe8f6 0%, #e4f4fb 45%, #d8efe8 100%); }
+body.theme-4 .card { background: linear-gradient(180deg, #ffffff 0%, #f4fbff 100%); border: 1px solid #bfe0f0; box-shadow: 0 8px 22px rgba(30,40,98,0.08); }
+body.theme-4 button.p { background: linear-gradient(135deg, #1e2862 0%, #2f6fa3 50%, #1f9bb0 100%); border-color: #1e2862; box-shadow: 0 10px 18px rgba(30,40,98,0.22); }
+body.theme-4 button.p:active { background: linear-gradient(135deg, #16204d 0%, #1f6f8b 100%); }
+body.theme-4 button.danger { color: #1e2862; border-color: rgba(30,40,98,0.2); }
+body.theme-4 button.danger:hover { background: #e6f4fb; }
+body.theme-4 .stat-card { background: linear-gradient(135deg, #cfe2ff 0%, #9ec5fe 100%); border: 1px solid #6ea8fe; }
+body.theme-4 .stat-chip { background: rgba(255,255,255,0.45); color: #0b2d5c; border-color: rgba(11,45,92,0.15); }
+body.theme-4 .compose-panel { background: linear-gradient(135deg, #d9edf8 0%, #f4fbff 55%, #e8f7f2 100%); }
+body.theme-4 .activity-panel { background: #4fa8d8; border-color: #4fa8d8; }
+body.theme-4 .pill { color: #1e2862; background: rgba(31,111,139,0.1); }
+body.theme-4 input:focus, body.theme-4 select:focus, body.theme-4 textarea:focus { border-color: #1f6f8b; outline: 0 0 0 3px rgba(31,111,139,0.15); }
+body.theme-4 .sidebar { background: linear-gradient(180deg, #0b2d5c 0%, #1e2862 45%, #1f6f8b 100%); }
+body.theme-4 .sidebar button { color: #d4eef7; }
+body.theme-4 .sidebar button.on { background: rgba(255,255,255,0.12); border-left-color: #8fd0e8; }
+body.theme-4 .sidebar button:hover:not(.on) { background: rgba(255,255,255,0.06); color: #fff; }
+body.theme-4 .sidebar .brand .dot { background: linear-gradient(135deg, #bfe0f0 0%, #ffffff 100%); box-shadow: 0 0 0 4px rgba(255,255,255,0.14); }
+body.theme-4 .badge { background: #eef8fb; color: #1e2862; border-color: #bfe0f0; }
+body.theme-4 .badge.ok { background: #eef8fb; color: #1e2862; border-color: #bfe0f0; }
+body.theme-4 .badge.bad { background: #f3f8ff; color: #1e2862; border-color: #bfe0f0; }
+* { box-sizing: border-box; }
+html,body { margin: 0; height: 100%; background: linear-gradient(180deg, #edf5ff 0%, var(--bg) 180px, var(--bg) 100%); color: var(--ink); font: 14px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--ac); text-decoration: none; }
+button { font: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 10px; padding: 9px 14px; transition: 0.15s ease; }
+button:hover { transform: translateY(-1px); }
+button.p { background: linear-gradient(135deg, var(--ac) 0%, #3b82f6 100%); border-color: var(--ac); color: #fff; box-shadow: 0 10px 18px rgba(37,99,235,0.18); }
+button.p:active { background: var(--ac2); }
+button.secondary { background: #fff; border-color: var(--line); color: var(--ink); }
+button.secondary:active { background: #f8fbff; }
+button.danger { color: var(--ac); border-color: rgba(37,99,235,0.2); background: #fff; }
+button.danger:hover { background: #f3f8ff; }
+input, select, textarea { font: inherit; width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
+input:focus, select:focus, textarea:focus { outline: var(--ring); border-color: var(--ac); }
+label { display: block; font-size: 12px; color: var(--mut); margin-bottom: 6px; font-weight: 600; }
+.err { color: var(--ac); font-size: 13px; margin-top: 6px; }
+.ok { color: var(--ac); font-size: 13px; margin-top: 6px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+.modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(15,23,42,0.48); }
+.modal-backdrop[hidden] { display: none; }
+.app-modal { width: min(100%, 420px); padding: 22px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 24px 70px rgba(15,23,42,0.24); }
+.app-modal h2 { margin: 0; font-size: 19px; }
+.app-modal p { margin: 10px 0 20px; color: var(--mut); white-space: pre-wrap; }
+.app-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.app-modal button.danger { background: #2563eb; color: #fff; border-color: #2563eb; }
+.g { display: grid; gap: 18px; grid-template-columns: 1.2fr 0.8fr; }
+@media (max-width: 700px) { .g, .send-address-row { grid-template-columns: 1fr; } }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; font-size: 13px; }
+th { color: var(--mut); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+tbody tr:hover { background: #f8fbff; }
+.small { font-size: 12px; color: var(--mut); }
+.muted { color: var(--mut); }
+.badge { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 999px; background: #ecf4ff; color: var(--ac); border: 1px solid #d5e6ff; }
+.badge.ok { background: #ecf4ff; color: var(--ac); border-color: #d5e6ff; }
+.badge.bad { background: #f3f8ff; color: var(--ac); border-color: #d5e6ff; }
+/* Layout */
+.app { display: flex; height: 100vh; overflow: hidden; }
+.sidebar { width: 248px; background: linear-gradient(180deg, #0651a7 0%, #043d78 100%); color: #fff; display: flex; flex-direction: column; flex-shrink: 0; }
+.sidebar .brand { padding: 20px 20px 18px; font-size: 19px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.18); }
+.sidebar .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%); box-shadow: 0 0 0 4px rgba(255,255,255,0.12); }
+.sidebar nav { flex: 1; overflow-y: auto; padding: 12px 12px 8px; }
+.sidebar button { width: 100%; text-align: left; padding: 11px 14px; border: none; background: transparent; color: #dbeafe; border-radius: 10px; border-left: 3px solid transparent; transition: all 0.15s ease; font-size: 13.5px; font-weight: 600; }
+.sidebar button.on { background: rgba(255,255,255,0.12); color: #fff; border-left-color: #ffffff; }
+.sidebar button:hover:not(.on) { background: rgba(255,255,255,0.08); color: #fff; }
+.sidebar .footer { padding: 16px 18px 20px; border-top: 1px solid rgba(255,255,255,0.12); }
+.sidebar button.logout { margin-top: 10px; color: #dbeafe; border-left: 3px solid transparent; background: rgba(255,255,255,0.08); }
+.sidebar button.logout:hover { background: rgba(255,255,255,0.14); color: #eff6ff; border-left-color: #ffffff; }
+.main { flex: 1; overflow-y: auto; background: transparent; padding: 24px 30px 32px; }
+.headerbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+.headerbar h1 { font-size: 30px; margin: 0; letter-spacing: -0.8px; }
+.headerbar .sub { color: var(--mut); font-size: 13px; margin-top: 4px; }
+.company-picker { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.company-logo-btn { width: 72px; height: 48px; padding: 6px; border: 2px solid var(--line); border-radius: 10px; background: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.15s ease; }
+.company-logo-btn:hover { transform: translateY(-1px); border-color: var(--ac); }
+.company-logo-btn.on { border-color: var(--ac); box-shadow: var(--ring); }
+.company-logo-btn img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.company-logo-fallback { font-size: 13px; font-weight: 800; color: var(--ac); line-height: 1; text-align: center; }
+.user-chip { font-size: 13px; color: var(--mut); background: rgba(255,255,255,0.8); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; }
+.dashboard { display: flex; flex-direction: column; gap: 18px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.stat-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; box-shadow: none; min-height: 0; }
+.stat-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; color: var(--mut); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.stat-chip { width: 24px; height: 24px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 6px; background: var(--panel); border: 1px solid var(--line); color: var(--ac); font-size: 13px; }
+.stat-chip svg { display: block; width: 13px; height: 13px; }
+.stat-value { font-size: 20px; line-height: 1.1; margin-top: 6px; font-weight: 800; letter-spacing: -0.04em; color: var(--ink); }
+.stat-foot { margin-top: 2px; color: var(--mut); font-size: 11px; }
+.stat-trend.up { color: var(--ac); }
+.stat-trend.down { color: var(--ac); }
+.panel { background: rgba(255,255,255,0.96); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+.compose-panel { background: linear-gradient(135deg, #dbeafe 0%, #ffffff 78%); }
+.activity-panel { background: #688FE5; border-color: #688FE5; color: #fff; }
+.activity-panel .activity li { border-color: rgba(255,255,255,0.28); }
+.activity-panel .activity .meta span { color: #eaf1ff; }
+.activity-panel .activity .score { color: #fff; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 18px 0; }
+.panel-header h3 { margin: 0; font-size: 17px; letter-spacing: -0.04em; }
+.pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 9px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ac); background: rgba(47,111,237,0.08); }
+.mail-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr); gap: 18px; }
+/* Send page layout */
+.send-page { display: flex; flex-direction: column; gap: 18px; }
+.send-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr); gap: 18px; align-items: start; }
+.send-address-row { display: grid; grid-template-columns: minmax(160px, 220px) minmax(180px, 1fr); align-items: end; gap: 10px; padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: none; }
+.send-address-row label { margin-bottom: 4px; }
+.send-to-entry { display: flex; align-items: center; gap: 6px; }
+.send-to-entry input { min-width: 0; }
+.send-to-entry button { flex: 0 0 auto; }
+@media (max-width: 900px) { .send-grid { grid-template-columns: 1fr; } }
+.compose-col { display: flex; flex-direction: column; gap: 14px; }
+.side-col { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 18px; }
+.preview-card { padding: 10px 18px 18px; }
+.send-preview-subject { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.send-preview-subject strong { color: var(--mut); font-size: 11px; text-transform: uppercase; }
+.send-preview-subject span { overflow-wrap: anywhere; }
+.recipients-card { padding: 10px 18px 18px; background: linear-gradient(135deg, #104da9 0%, #000000 100%); border-color: #0F52BA; color: #000; }
+.recipients-card .panel-header h3, .recipients-card label, .recipients-card .small, .recipients-card #rmsg { color: #000; }
+.recipients-card .panel-header h3 { display: flex; align-items: center; }
+.recipients-card hr { border-top-color: rgba(0,0,0,0.25) !important; }
+.activity-card { padding: 10px 18px 18px; background: #2563eb; border: 1px solid #1d4ed8; color: navy; }
+.activity-card .panel-header { background: transparent; }
+.activity-card th, .activity-card td, .activity-card .empty, .activity-card h3, .activity-card .badge { color: navy; border-color: rgba(0,0,128,0.25); }
+.activity-card tbody tr:hover { background: rgba(255,255,255,0.08); }
+.activity-card table { font-size: 12px; }
+.stack { display: grid; gap: 18px; }
+.compose-body { padding: 12px 14px; }
+.field-grid { display: grid: gap: 14px; grid-template-columns: 1fr 1fr; }
+.field-grid .full { grid-column: 1 / -1; }
+.form-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+.preview-box { padding: 18px; }
+iframe { width: 100%; height: 320px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.list-block { padding: 10px 18px 18px; }
+.template-section { margin-bottom: 20px; }
+.template-page { min-height: calc(100vh - 130px); padding: 18px; border: 2px solid #688fe5; border-radius: 12px; background: linear-gradient(155deg, #050b18 0%, #1d4ed8 30%, #f8fbff 72%, #ffffff 100%); }
+.template-page .template-section h3 { color: #fff; }
+.template-section h3 { margin: 0 0 12px; font-size: 17px; }
+.template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.template-card { min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: var(--shadow); }
+.template-form { border: 2px solid #688fe5; }
+.template-card h4 { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+.template-subject { margin: 5px 0 12px; color: var(--mut); font-size: 12px; overflow-wrap: anywhere; }
+.template-fields { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; }
+.template-field { padding: 3px 7px; border-radius: 6px; background: #e0f2fe; color: #075985; font-size: 11px; }
+.template-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; }
+.template-actions .small { overflow-wrap: anywhere; }
+.merge-tools { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin: 10px 0; }
+.merge-tools label { margin: 0; }
+.merge-tools select { width: auto; min-width: 160px; }
+.template-spacing { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+.template-spacing label { min-width: 150px; margin: 0; }
+/* Contacts & groups */
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.contacts-page { display: grid; gap: 18px; }
+.contacts-heading { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+.contacts-heading h3 { margin: 0; font-size: 18px; }
+.contacts-heading .small { display: block; margin-top: 3px; }
+.contacts-heading input { max-width: 320px; }
+.contacts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.contact-item-card { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: var(--shadow); }
+.contact-avatar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 8px; background: #e0f2fe; color: #075985; font-size: 16px; font-weight: 800; }
+.contact-item-details { min-width: 0; align-self: center; }
+.contact-item-card .name { overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.contact-item-card .email { margin-top: 2px; overflow-wrap: anywhere; color: var(--mut); font-size: 12px; }
+.contact-item-card .tags { display: flex; flex-wrap: wrap; gap: 6px; grid-column: 1 / -1; }
+.contact-item-card .contact-tag { border-radius: 6px; }
+.contact-item-actions { display: flex; gap: 8px; grid-column: 1 / -1; padding-top: 10px; border-top: 1px solid var(--line); }
+.contacts-management-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.contacts-management-grid > .card { min-width: 0; }
+.recipient-subnav { display: flex; gap: 8px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: #fff; width: fit-content; }
+.recipient-subnav button { padding: 7px 12px; border: 0; border-radius: 6px; background: transparent; color: var(--mut); }
+.recipient-subnav button.active { background: #e0f2fe; color: #075985; font-weight: 700; }
+.recipient-subnav { display: flex; gap: 8px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: #fff; width: fit-content; }
+.recipient-subnav button { padding: 7px 12px; border: 0; border-radius: 6px; background: transparent; color: var(--mut); }
+.recipient-subnav button.active { background: #e0f2fe; color: #075985; font-weight: 700; }
+@media (max-width: 700px) { .contacts-management-grid { grid-template-columns: 1fr; } .contacts-heading { align-items: stretch; flex-direction: column; } .contacts-heading input { max-width: none; } }
+.groups-page { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(260px, 0.7fr); gap: 18px; align-items: start; }
+.groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.group-card { display: flex; flex-direction: column; min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: var(--shadow); }
+.group-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.group-card h4 { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+.group-count { flex: 0 0 auto; padding: 3px 7px; border-radius: 6px; background: #e0f2fe; color: #075985; font-size: 11px; font-weight: 700; }
+.group-member-list { display: grid; gap: 8px; max-height: 220px; overflow-y: auto; margin: 14px 0; padding: 0; list-style: none; }
+.group-member-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.group-member-info { display: grid; min-width: 0; }
+.group-member-info strong, .group-member-info span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.group-member-info strong { font-size: 12px; }
+.group-member-info span { color: var(--mut); font-size: 11px; }
+.group-member-remove { padding: 3px 8px; }
+.group-empty { padding: 14px 0; color: var(--mut); font-size: 12px; }
+.group-add-form { display: flex; align-items: center; gap: 6px; margin-top: auto; }
+.group-add-form input { min-width: 0; padding: 7px 9px; font-size: 12px; }
+.group-add-form button { padding: 7px 10px; }
+.group-card-actions { display: flex; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+@media (max-width: 800px) { .groups-page { grid-template-columns: 1fr; } }
+/* Company chart */
+.company-chart-layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.company-donut { width: 220px; height: 220px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.company-donut-center { width: 140px; height: 140px; border-radius: 50%; background: var(--card); margin: 40px auto 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid var(--line); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.company-donut-center strong { display: block; font-size: 20px; color: var(--ink); }
+.company-donut-center span { font-size: 11px; color: var(--mut); }
+.company-chart-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; min-width: 200px; }
+.company-chart-legend li { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.company-chart-swatch { width: 14px; height: 14px; border-radius: 50%; display: inline-block; margin-right: 8px; border: 1px solid rgba(0,0,0,0.1); }
+.company-chart-label { flex: 1; min-width: 0; }
+.company-chart-label span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.company-chart-value { font-weight: 700; color: var(--ac); }
+.company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.company-card { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: var(--card); }
+.company-card-top { margin-bottom: 10px; }
+.company-card-top h4 { margin: 0; font-size: 16px; color: var(--ink); }
+.company-card-sent { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; color: var(--mut); }
+.company-card-actions { display: flex; gap: 8px; }
+.contact-card { padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.contact-card .name { font-weight: 600; font-size: 14px; }
+.contact-card .email { color: var(--mut); font-size: 12px; margin-top: 2px; }
+.contact-card .tags { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.contact-tag { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #eef4ff; color: var(--ac); border: 1px solid #d5e6ff; }
+.recipient-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; background: #eef4ff; border: 1px solid #d5e6ff; border-radius: 8px; margin: 2px; font-size: 12px; }
+.recipient-pill .x { cursor: pointer; color: var(--bad); font-weight: bold; }
+.empty { text-align: center; color: var(--mut); padding: 40px; }
+.empty p { font-size: 14px; }
+/* Rich text */
+#editor { height: 220px; }
+.ql-container { font-size: 13px !important; }
+.ql-toolbar { background: #fff; border-bottom: 1px solid var(--line) !important; }
+.ql-editor { min-height: 180px; }
+.schedule-row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+.schedule-row input[type="datetime-local"] { width: auto; flex: 1; }
+.tracking-table td { font-size: 12px; }
+.tracking-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; font-weight: 600; }
+.track-open { background: #e7f4e7; color: #15803d; border: 1px solid #bbdfbb; }
+.track-click { background: #eef4ff; color: #2563eb; border: 1px solid #d5e6ff; }
+.track-bounce { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.track-failed { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.login { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+.login .card { width: 100%; max-width: 400px; padding: 32px; }
+.login .brand { text-align: center; margin-bottom: 26px; }
+.login .brand .name { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-top: 8px; }
+.login .brand .tag { color: #94a3b8; font-size: 13px; }
+.login .foot { margin-top: 20px; font-size: 12px; color: #94a3b8; text-align: center; border-top: 1px solid #1e293b; padding-top: 16px; }
+</style>
+</head>
+<body>
+
+<div id="login" class="login">
+  <div class="card">
+    <div class="brand">
+      <div class="dot" title="MailDesk"></div>
+      <div class="name">MailDesk</div>
+      <div class="tag">Email studio &mdash; send, template, track</div>
+    </div>
+    <form id="loginForm" novalidate>
+      <label>Email</label>
+      <input id="le" type="email" placeholder="admin@maildesk.com" required autocomplete="username">
+      <label>Password</label>
+      <input id="lp" type="password" placeholder="••••••••" required autocomplete="current-password">
+      <p class="err" id="lerr"></p>
+      <button type="submit" class="p" id="lgo">Sign in</button>
+    </form>
+    <div class="foot">
+      <strong>Demo login:</strong><br>
+      admin@maildesk.com / admin123<br>
+      Then select a company and choose your sending address.
+    </div>
+  </div>
+</div>
+
+<div id="app" class="app" style="display:none">
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span><span>MailDesk</span></div>
+    <nav id="nav"></nav>
+    <div class="footer">
+      <div class="user-chip" id="uchip"></div>
+      <button class="logout" id="lout">Log out</button>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="headerbar">
+      <div>
+        <h1 id="pagetitle">MailDesk</h1>
+        <div class="sub" id="pagesub"></div>
+      </div>
+      <div class="company-picker" style="display:none" id="copick" aria-label="Switch company"></div>
+    </div>
+    <div id="m"></div>
+  </main>
+</div>
+
+<script src="quill.min.js"></script>
+<script src="papaparse.min.js"></script>
+<script>
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let T = sessionStorage.t || '', R = sessionStorage.r || '', CO = sessionStorage.cid || '', cur = 'send';
+const $ = s => document.querySelector(s);
+const LOGIN = $('#login'), APP = $('#app');
+
+const api = async (p, o = {}) => {
+  const u = p + (CO && !p.includes('company_id=') ? (p.includes('?') ? '&' : '?') + 'company_id=' + CO : '');
+  const r = await fetch(u, {
+    method: o.m || (o.b ? 'POST' : 'GET'),
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + T },
+    body: o.b && JSON.stringify(o.b)
+  });
+  if (r.status === 401) { logout(); throw Error('Signed out'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Error(j.error || r.statusText);
+  return j;
+};
+const logout = () => { sessionStorage.clear(); T = R = ''; LOGIN.style.display = 'flex'; APP.style.display = 'none'; boot(); };
+
+document.getElementById('loginForm').onsubmit = async e => {
+  e.preventDefault();
+  const er = $('#lerr'); er.textContent = '';
+  try {
+    const r = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('#le').value, password: $('#lp').value }) });
+    const j = await r.json();
+    if (!r.ok) return er.textContent = j.error;
+    T = sessionStorage.t = j.token;
+    R = sessionStorage.r = j.role;
+    CO = sessionStorage.cid = j.company_id || '';
+    sessionStorage.cname = j.company || '';
+    sessionStorage.email = $('#le').value;
+    LOGIN.style.display = 'none';
+    APP.style.display = 'flex';
+    boot();
+  } catch (err) { er.textContent = err.message || 'Login failed'; }
+};
+
+const TABS = { send: 'Send', drafts: 'Drafts', tpl: 'Templates', snd: 'Senders', recipients: 'Recipients', usr: 'Users', co: 'Companies', trk: 'Tracking', log: 'Sent log' };
+const DESC = { send: 'Compose and send emails', drafts: 'Continue working on saved emails', tpl: 'Manage email templates', snd: 'Configure sender accounts', recipients: 'Manage contacts and recipient groups', usr: 'Manage team users', co: 'Manage companies', trk: 'Email tracking events', log: 'View sent email log' };
+
+const COMPANY_THEMES = { '1': 'theme-4', '2': 'theme-2', '3': 'theme-3' };
+function applyTheme(cid) {
+  document.body.className = document.body.className.replace(/theme-\d/g, '').trim();
+  if (cid && COMPANY_THEMES[cid]) document.body.classList.add(COMPANY_THEMES[cid]);
+}
+const COMPANY_LOGOS = {
+  'GreekLanka Maritime Solutions': '/uploads/GLMS - LOGO-01 (1).png',
+  'OCEANIC SHIP CHANDLERS (PVT) LTD': '/uploads/OCEANIC SHIP CHANDLERS LOGO Final (2).png',
+  'Navigator Crew Managment (PVT)LTD': '/uploads/Navigator logo_page-0001.jpg'
+};
+const companyLogo = name => COMPANY_LOGOS[name] || COMPANY_LOGOS[String(name || '').trim()] || '';
+function selectCompany(id, name) {
+  CO = String(id || '');
+  sessionStorage.cid = CO;
+  sessionStorage.cname = name || '';
+  applyTheme(CO);
+  document.querySelectorAll('.company-logo-btn').forEach(b => b.classList.toggle('on', b.dataset.cid === CO));
+  go(cur);
+}
+function renderCompanyPicker(companies) {
+  const wrap = $('#copick');
+  if (!wrap) return;
+  wrap.innerHTML = companies.map(c => {
+    const logo = companyLogo(c.name);
+    const label = esc(c.name);
+    const initials = esc(c.name.split(/[^A-Za-z0-9]+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || 'CO');
+    return `<button type="button" class="company-logo-btn ${String(c.id) === CO ? 'on' : ''}" data-cid="${c.id}" data-cname="${label}" title="${label}" aria-label="${label}">${logo ? `<img src="${esc(logo)}" alt="${label}">` : `<span class="company-logo-fallback">${initials}</span>`}</button>`;
+  }).join('');
+  wrap.onclick = e => {
+    const b = e.target.closest('.company-logo-btn');
+    if (!b) return;
+    selectCompany(b.dataset.cid, b.dataset.cname);
+  };
+}
+
+async function refreshCompanyPicker() {
+  if (R !== 'super') return;
+  const cs = await api('/api/companies');
+  if (!cs.find(c => String(c.id) === CO)) { CO = String(cs[0]?.id || ''); sessionStorage.cid = CO; sessionStorage.cname = cs[0]?.name || ''; }
+  applyTheme(CO);
+  renderCompanyPicker(cs);
+}
+
+async function showDialog(title, text, okCancel) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-backdrop';
+  overlay.innerHTML = `<div class="app-modal"><h2>${esc(title)}</h2><p>${esc(text)}</p><div class="app-modal-actions"><button class="secondary" id="dl-cancel">Cancel</button><button class="p" id="dl-ok">OK</button></div></div>`;
+  document.body.appendChild(overlay);
+  if (!okCancel) { overlay.querySelector('#dl-cancel').hidden = true; overlay.querySelector('#dl-ok').textContent = 'Got it'; }
+  return new Promise(resolve => {
+    overlay.querySelector('#dl-ok').onclick = () => { overlay.remove(); resolve(true); };
+    overlay.querySelector('#dl-cancel').onclick = () => { overlay.remove(); resolve(false); };
+  });
+}
+
+async function boot() {
+  if (!T) return;
+  $('#uchip').textContent = (sessionStorage.email || '') + ' (' + R + ')';
+  const tabs = ['send', 'drafts', 'tpl', 'snd', 'recipients', ...(R !== 'user' ? ['usr'] : []), ...(R === 'super' ? ['co'] : []), 'trk', 'log'];
+  $('#nav').innerHTML = tabs.map(t => `<button data-t="${t}" ${cur === t ? 'class="on"' : ''}>${t === 'snd' && R === 'user' ? 'My senders' : TABS[t]}</button>`).join(' ');
+  $('#nav').onclick = e => { const b = e.target.closest('button'); if (b && b.dataset.t) go(b.dataset.t); };
+  $('#lout').onclick = logout;
+  if (R === 'super') {
+    $('#copick').style.display = 'inline-flex';
+    const cs = await api('/api/companies');
+    CO = CO || String(cs[0]?.id || '');
+    const current = cs.find(company => String(company.id) === String(CO)) || cs[0];
+    CO = current ? String(current.id) : '';
+    sessionStorage.cid = CO;
+    sessionStorage.cname = current?.name || '';
+    applyTheme(CO);
+    renderCompanyPicker(cs);
+  } else {
+    $('#copick').style.display = 'none';
+  }
+  const h = location.hash.slice(1);
+  go(tabs.includes(h) ? h : 'send');
+}
+
+function go(t) {
+  cur = t;
+  location.hash = t;
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $('#pagetitle').textContent = 'MailDesk · ' + TABS[t];
+  $('#pagesub').textContent = DESC[t] || '';
+  V[t]().catch(err => { $('#m').innerHTML = `<div class="card"><p class="err">${esc(err.message)}</p></div>`; });
+}
+
+// ---------- SEND ----------
+let quill = null;
+let recipientPills = [];
+let attachmentIds = [];
+let attachmentItems = [];
+async function send() {
+  const draftId = sessionStorage.editDraftId || '';
+  const [ts, ss, contacts, st, sent, savedDraft] = await Promise.all([api('/api/templates'), api('/api/senders'), api('/api/contacts'), api('/api/dashboard'), api('/api/sent'), draftId ? api('/api/drafts/' + draftId) : Promise.resolve(null)]);
+  const defaultSender = ss.find(sender => sender.is_personal && sender.is_default) || ss.find(sender => sender.is_default) || ss[0];
+  recipientPills = savedDraft ? String(savedDraft.to_list || '').split(',').map(email => email.trim()).filter(Boolean) : [];
+  attachmentItems = savedDraft?.attachments || [];
+  attachmentIds = savedDraft?.attachment_ids || attachmentItems.map(item => item.id);
+  contactsList = contacts;
+  const rows = sent.map(x => `<tr><td>${esc(x.at)}<td>${esc(x.to_list)}<td>${esc(x.subject)}<td><span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${x.status}</span><td>${x.error ? esc(x.error) : '—'}</tr>`).join('');
+  $('#m').innerHTML = `
+    <div class="send-page">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-top">Total templates</div><div class="stat-chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h4"/></svg></div><div class="stat-value">${st.totalTemplates}</div><div class="stat-foot">created</div></div>
+        <div class="stat-card"><div class="stat-top">Avg. open Rate</div><div class="stat-chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><rect x="6" y="10" width="3" height="7" rx="1"/><rect x="11" y="6" width="3" height="11" rx="1"/><rect x="16" y="12" width="3" height="5" rx="1"/></svg></div><div class="stat-value">${st.avgOpenRate}%</div><div class="stat-foot">average</div></div>
+        <div class="stat-card"><div class="stat-top">Draft in Review</div><div class="stat-chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><div class="stat-value">${st.draftsInReview}</div><div class="stat-foot">pending</div></div>
+        <div class="stat-card"><div class="stat-top">Sent this month</div><div class="stat-chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg></div><div class="stat-value">${st.sentThisMonth}</div><div class="stat-foot">delivered</div></div>
+        <div class="stat-card"><div class="stat-top">Total sent</div><div class="stat-chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><div class="stat-value">${st.totalSent}</div><div class="stat-foot">all time</div></div>
+      </div>
+      <div class="send-grid">
+        <div class="compose-col">
+          <div class="compose-panel card">
+            <div class="panel-header"><h3>Compose</h3></div>
+            <div class="compose-body">
+              <div class="send-address-row">
+                <div><label for="s">From <span class="small">(optional for drafts)</span></label><select id="s"><option value="" ${savedDraft && !savedDraft.sender_id ? 'selected' : ''}>No sender selected</option>${ss.map(s => `<option value="${s.id}" ${(savedDraft ? String(s.id) === String(savedDraft.sender_id) : String(s.id) === String(defaultSender?.id || '')) ? 'selected' : ''}>${esc(s.from_email)} (${s.provider}${s.status !== 'active' ? ' · reconnect needed' : ''})</option>`).join('')}</select></div>
+                <div><label for="rto">To</label><div class="send-to-entry"><input id="rto" type="email" placeholder="Add recipient email"><button class="p" id="radd">Add</button></div></div>
+              </div>
+              <label>Template</label>
+              <select id="t">${ts.map(t => `<option value="${t.id}" ${String(t.id) === String(savedDraft?.template_id || sessionStorage.composeTemplateId || '') ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select>
+              <label>Subject</label>
+              <input id="sj" placeholder="Email subject">
+              <label for="send-title" style="margin-top:12px">Title</label>
+              <select id="send-title"><option value="">Select title</option><option>Mr</option><option>Mrs</option><option>Ms</option><option>Sir</option><option>Madam</option></select>
+              <label for="send-company-name" style="margin-top:12px">Company name</label>
+              <input id="send-company-name" value="${esc(sessionStorage.cname || '')}" placeholder="Company name">
+              <div id="tflds" style="margin-top:12px;"></div>
+              <div id="editor"></div>
+              <div style="margin-top:8px;">
+                <label>Insert personalization</label>
+                <select id="ph" style="width:auto;display:inline-block;">
+                  <option value="{{first_name}}">{{first_name}}</option>
+                  <option value="{{title}}">{{title}}</option>
+                  <option value="{{signature}}">{{signature}}</option>
+                  <option value="{{company_name}}">{{company_name}}</option>
+                  <option value="{{vessel_name}}">{{vessel_name}}</option>
+                  <option value="{{invoice_no}}">{{invoice_no}}</option>
+                  <option value="{{due_date}}">{{due_date}}</option>
+                  <option value="{{priority}}">{{priority}}</option>
+                  <option value="{{client_name}}">{{client_name}}</option>
+                </select>
+                <button class="secondary" id="phIns">Insert</button>
+              </div>
+              <div class="schedule-row">
+                <label>Schedule (optional)</label>
+                <input type="datetime-local" id="sch">
+                <button class="secondary" id="schClear">Clear</button>
+              </div>
+              <label style="margin-top:12px;">Attachments</label>
+              <input type="file" id="atch" multiple>
+              <div id="atchList" style="margin-top:6px;font-size:12px;color:var(--mut);"></div>
+              <p id="msg"></p>
+              <button class="p" id="sd">Send email</button>
+              <button class="secondary" id="svDraft">Save as draft</button>
+            </div>
+          </div>
+          <div class="card recipients-card">
+            <div class="panel-header"><h3><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:6px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Recipients</h3></div>
+            <div id="rpills"></div>
+            <label for="cc" style="margin-top:12px">CC email addresses</label>
+            <input id="cc" type="text" placeholder="colleague@example.com, team@example.com">
+            <hr style="margin:12px 0;border:none;border-top:1px solid var(--line);">
+            <label style="margin-bottom:4px;">Or select from contacts</label>
+            <div class="g" style="margin-bottom:10px;">
+              <div>
+                <label>Individual contacts</label>
+                <select id="rsel" multiple size="6" style="height:160px;">${ts ? '' : ''}<option value="">Loading...</option></select>
+              </div>
+              <div>
+                <label>Recipient groups</label>
+                <select id="rgrp" size="6" style="height:160px;"></select>
+              </div>
+            </div>
+            <button class="secondary" id="rload">Load groups</button>
+            <button class="p" id="rfill">Add selected to recipients</button>
+            <div id="rmsg" style="margin-top:8px;font-size:12px;color:var(--mut);"></div>
+          </div>
+        </div>
+        <div class="side-col">
+          <div class="preview-card card">
+            <div class="send-preview-subject"><strong>Subject</strong><span id="pvsubject"></span></div>
+            <label>Preview</label>
+            <iframe id="pv" sandbox></iframe>
+          </div>
+          <div class="card activity-card">
+            <div class="panel-header"><h3>Recent activity</h3></div>
+            <table>
+              <thead><tr><th>When<th>To<th>Subject<th>Status<th>Error</th></thead>
+              <tbody>${rows || '<tr><td colspan="5" class="empty">No activity.</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  // load contacts into multi-select
+  const rsel = $('#rsel');
+  rsel.innerHTML = contactsList.map(c => `<option value="${c.email}">${esc(c.name || c.email)} &lt;${esc(c.email)}&gt;</option>`).join('');
+  // load groups
+  const rgrp = $('#rgrp');
+  const groups = await api('/api/contact-groups');
+  rgrp.innerHTML = groups.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
+  $('#rload').onclick = async () => {
+    $('#rmsg').textContent = 'Loading groups…';
+    try {
+      const gs = await api('/api/contact-groups');
+      rgrp.innerHTML = gs.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
+      $('#rmsg').textContent = `${gs.length} groups loaded`;
+    } catch (e) { $('#rmsg').textContent = e.message; }
+  };
+  $('#rfill').onclick = async () => {
+    const emails = [...rsel.selectedOptions].map(o => o.value);
+    const gids = [...rgrp.selectedOptions].map(o => o.value);
+    const res = await api('/api/contacts/resolve', { b: { emails, groupIds: gids } });
+    for (const e of res.emails) addPill(e);
+    $('#rmsg').innerHTML = `<span class="ok">${res.emails.length} recipient(s) added</span>`;
+  };
+  // init quill
+  if (quill) quill.root.innerHTML = '';
+  quill = new Quill('#editor', { theme: 'snow', placeholder: 'Compose email body…', modules: { toolbar: [
+    [{ header: [1, 2, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link', 'image'],
+    ['clean']
+  ]} });
+  const getValues = () => ({ ...Object.fromEntries([...document.querySelectorAll('#tflds [data-fld]')].map(el => [el.dataset.fld, el.value])), title: $('#send-title').value, company_name: $('#send-company-name').value });
+  const fieldLabel = key => key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  const replaceText = (text, values) => text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => String(values[key] ?? ''));
+  const replaceHtml = (html, values) => html.replace(/{{\s*(\w+)\s*}}/g, (_, key) => esc(values[key] ?? '').replace(/\r?\n/g, '<br>'));
+  const prev = () => {
+    const t = ts.find(x => x.id == $('#t').value);
+    $('#sj').value = t ? (t.subject || '') : '';
+    quill.root.innerHTML = t ? (t.html || '') : '';
+    const sender = ss.find(item => String(item.id) === $('#s').value);
+    const recipient = recipientPills.length === 1 ? contactsList.find(item => item.email.toLowerCase() === recipientPills[0].toLowerCase()) : null;
+    const defaults = {
+      first_name: recipient?.name?.trim().split(/\s+/)[0] || '',
+      client_name: recipient?.name?.trim() || '',
+      signature: sender?.from_name || '',
+      company_name: sessionStorage.cname || ''
+    };
+    const schema = new Map((t?.fields || []).map(field => [field.key, field]));
+    const placeholders = [...new Set([...(t?.subject || '').concat(t?.html || '').matchAll(/{{\s*(\w+)\s*}}/g)].map(match => match[1]))];
+    const fields = [...new Set([...schema.keys(), ...placeholders])].filter(key => key !== 'title' && key !== 'company_name').map(key => ({ ...(schema.get(key) || { key, label: fieldLabel(key), type: 'text' }), ...(key === 'due_date' ? { type: 'date' } : {}) }));
+    $('#tflds').innerHTML = `<label style="margin-top:12px;">Personalization fields</label><div class="g">${fields.map(field => `<div><label>${esc(field.label || field.key)}</label>${field.key === 'signature' ? `<textarea id="sfld-${field.key}" data-fld="${field.key}" rows="3" style="width:100%;min-height:84px;resize:vertical;padding:6px 9px;border:1px solid #d5e6ff;border-radius:8px;font:inherit;" placeholder="${esc(field.label || field.key)}">${esc(defaults[field.key] || '')}</textarea>` : `<input id="sfld-${field.key}" data-fld="${field.key}" type="${field.type === 'date' ? 'date' : 'text'}" style="width:100%;padding:6px 9px;border:1px solid #d5e6ff;border-radius:8px;font:inherit;" value="${esc(defaults[field.key] || '')}" placeholder="${esc(field.label || field.key)}">`}</div>`).join('')}</div>`;
+    if (defaults.first_name) $('#sfld-first_name').dataset.autofilled = 'contact';
+    if (defaults.client_name) $('#sfld-client_name').dataset.autofilled = 'contact';
+    if (defaults.signature) $('#sfld-signature').dataset.autofilled = 'sender';
+    sendRenderPreview();
+  };
+  const sendRenderPreview = () => {
+    const values = getValues();
+    $('#pvsubject').textContent = replaceText($('#sj').value, values) || '(no subject)';
+    $('#pv').srcdoc = replaceHtml(quill.root.innerHTML, values);
+  };
+  $('#t').onchange = prev;
+  $('#sj').oninput = sendRenderPreview;
+  $('#send-title').onchange = sendRenderPreview;
+  $('#send-company-name').oninput = sendRenderPreview;
+  $('#tflds').oninput = event => {
+    if (event.target.dataset.fld === 'first_name' || event.target.dataset.fld === 'signature') delete event.target.dataset.autofilled;
+    sendRenderPreview();
+  };
+  $('#tflds').onchange = sendRenderPreview;
+  $('#s').onchange = () => {
+    const signature = $('#sfld-signature');
+    const sender = ss.find(item => String(item.id) === $('#s').value);
+    if (signature && signature.dataset.autofilled === 'sender') signature.value = sender?.from_name || '';
+    sendRenderPreview();
+  };
+  quill.on('text-change', sendRenderPreview);
+  prev();
+  if (savedDraft) {
+    const values = savedDraft.values || {};
+    $('#sj').value = savedDraft.subject || '';
+    quill.root.innerHTML = savedDraft.draft_html || '';
+    $('#send-title').value = values.title || '';
+    $('#send-company-name').value = values.company_name ?? sessionStorage.cname ?? '';
+    document.querySelectorAll('#tflds [data-fld]').forEach(field => { if (values[field.dataset.fld] !== undefined) field.value = values[field.dataset.fld]; });
+    $('#cc').value = savedDraft.cc_list || '';
+    $('#sch').value = savedDraft.scheduled_at || '';
+    sendRenderPreview();
+  }
+  sessionStorage.removeItem('composeTemplateId');
+  // attachments
+  const atchInput = $('#atch');
+  const atchList = $('#atchList');
+  atchInput.onchange = async () => {
+    const files = [...atchInput.files];
+    if (!files.length) return;
+    const fd = new FormData();
+    for (const f of files) fd.append('files', f);
+    try {
+      const r = await fetch('/api/attachments/upload', { headers: { Authorization: 'Bearer ' + T }, body: fd, method: 'POST' });
+      const j = await r.json();
+      if (!r.ok) throw Error(j.error || 'Upload failed');
+      attachmentItems.push(...j.attachments);
+      attachmentIds = attachmentItems.map(a => a.id);
+      renderAtch();
+      atchList.onclick = ev => { const id = Number(ev.target.dataset.atch); if (id) { attachmentItems = attachmentItems.filter(item => item.id !== id); attachmentIds = attachmentItems.map(item => item.id); renderAtch(); } };
+      atchInput.value = '';
+    } catch (e) { $('#msg').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+  };
+  const renderAtch = () => { atchList.innerHTML = attachmentItems.map(a => `<span class="recipient-pill">📎 ${esc(a.original_name)} <span class="x" data-atch="${a.id}">×</span></span>`).join(''); };
+  renderAtch();
+  const getHtml = () => quill ? quill.root.innerHTML : '';
+  const validEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const syncRecipientFields = () => {
+    const contact = recipientPills.length === 1 ? contactsList.find(item => item.email.toLowerCase() === recipientPills[0].toLowerCase()) : null;
+    const defaults = { first_name: contact?.name?.trim().split(/\s+/)[0] || '', client_name: contact?.name?.trim() || '' };
+    for (const [key, value] of Object.entries(defaults)) {
+      const field = $(`#sfld-${key}`);
+      if (!field) continue;
+      if (field.dataset.autofilled === 'contact') field.value = value;
+      else if (value && !field.value.trim()) { field.value = value; field.dataset.autofilled = 'contact'; }
+      if (!value) delete field.dataset.autofilled;
+    }
+    sendRenderPreview();
+  };
+  const addPill = (email) => {
+    if (!email || !validEmail(email)) return;
+    if (recipientPills.includes(email)) return;
+    recipientPills.push(email);
+    renderPills();
+    syncRecipientFields();
+  };
+  const renderPills = () => {
+    $('#rpills').innerHTML = recipientPills.map(e => `<span class="recipient-pill">${esc(e)} <span class="x" data-rem="${e}">×</span></span>`).join('');
+    $('#rpills').onclick = ev => { const rem = ev.target.dataset.rem; if (rem) { recipientPills = recipientPills.filter(x => x !== rem); renderPills(); syncRecipientFields(); } };
+  };
+  renderPills();
+  $('#radd').onclick = () => { const v = $('#rto').value.trim(); if (v) { addPill(v); $('#rto').value = ''; } };
+  $('#rto').onkeypress = ev => { if (ev.key === 'Enter') { $('#radd').click(); } };
+  $('#schClear').onclick = () => { $('#sch').value = ''; };
+  $('#phIns').onclick = () => { const v = $('#ph').value; if (v && quill) { quill.insertText(quill.getSelection()?.index || quill.getLength(), v); quill.focus(); } };
+  const dragTo = sessionStorage.dragTo;
+  if (dragTo) { sessionStorage.removeItem('dragTo'); addPill(dragTo); }
+  const doSend = async (isDraft) => {
+    const to = recipientPills;
+    if (!isDraft && !ss.some(sender => String(sender.id) === $('#s').value)) return $('#msg').innerHTML = `<span class="err">No sender is configured for this company. Add a sender in the Senders tab before sending.</span>`;
+    if (!isDraft && !to.length) return $('#msg').innerHTML = `<span class="err">Add at least one recipient</span>`;
+    const cc = $('#cc').value.split(/[;,\s]+/).filter(Boolean);
+    if (!isDraft && cc.some(email => !validEmail(email))) return $('#msg').innerHTML = `<span class="err">Check the CC email addresses</span>`;
+    const values = getValues();
+    const rawSubject = $('#sj').value;
+    const rawHtml = getHtml();
+    const subject = replaceText(rawSubject, values);
+    const html = replaceHtml(rawHtml, values);
+    if (!isDraft && !html.trim()) return $('#msg').innerHTML = `<span class="err">Email body is required</span>`;
+    $('#msg').textContent = isDraft ? 'Saving draft…' : 'Sending…';
+    try {
+      const sch = $('#sch').value || null;
+      if (isDraft) {
+        const body = { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, scheduled_at: sch, subject: rawSubject, html: rawHtml, attachment_ids: attachmentIds };
+        const id = sessionStorage.editDraftId;
+        if (id) await api('/api/drafts/' + id, { m: 'PUT', b: body });
+        else await api('/api/send', { b: { ...body, draft: 1 } });
+        sessionStorage.removeItem('editDraftId');
+        await showDialog('Draft saved', 'Your email is saved and available in the Drafts tab.');
+        go('drafts');
+        return;
+      }
+      const r = await api('/api/send', { b: { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, draft: 0, scheduled_at: sch, subject, html, attachment_ids: attachmentIds } });
+      const draftId = sessionStorage.editDraftId;
+      if (draftId && r.status === 'sent') { await api('/api/drafts/' + draftId, { m: 'DELETE' }); sessionStorage.removeItem('editDraftId'); }
+      $('#msg').innerHTML = `<span class="ok">${isDraft ? 'Draft saved' : 'Email sent'} (${r.status})</span>`;
+      recipientPills = []; renderPills();
+    } catch (e) { $('#msg').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+  };
+  $('#sd').onclick = () => doSend(false);
+  $('#svDraft').onclick = () => doSend(true);
+}
+
+// ---------- TEMPLATES ----------
+async function tpl() {
+  const ts = await api('/api/templates');
+  const coName = sessionStorage.cname || '';
+  $('#m').innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px;">
+        <div>
+          <h3 style="margin:0 0 2px 0;font-size:17px">Templates</h3>
+          <div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em">Company: ${esc(coName || '—')}</div>
+        </div>
+        ${R === 'super' ? `<span style="font-size:11px;background:#eef4ff;border:1px solid #d5e6ff;padding:2px 8px;border-radius:8px;color:var(--ac)">Switch company above</span>` : ''}
+      </div>
+      <div class="template-grid">${ts.map(t => `<article class="template-card"><h4>${esc(t.name)}</h4><div class="template-subject">${esc(t.subject)}</div><div class="template-fields">${t.fields ? t.fields.map(f => `<span class="template-field">{{${f.key}}}</span>`).join('') : ''}</div><div class="template-actions"><button class="p" data-use="${t.id}">Use in email</button><button class="secondary" data-e="${t.id}">Edit</button> <button class="danger" data-d="${t.id}">Delete</button></div></article>`).join('')}</div>
+      ${ts.length ? '' : '<p class="empty">No templates yet.</p>'}
+    </div>
+    <div class="card template-form">
+      <h3 style="margin:0 0 12px 0;font-size:17px">Create template</h3>
+      <label>Name</label><input id="tn"><label>Subject</label><input id="tsj" placeholder="Hello {{first_name}}">
+      <div class="merge-tools">
+        <label for="merge-key">Placeholder</label>
+        <select id="merge-key"><option value="first_name">first_name</option><option value="title">title</option><option value="client_name">client_name</option><option value="company_name">company_name</option><option value="vessel_name">vessel_name</option><option value="signature">signature</option><option value="invoice_no">invoice_no</option><option value="due_date">due_date</option><option value="priority">priority</option></select>
+        <button class="secondary" id="insert-subject" type="button">Insert in subject</button>
+        <button class="secondary" id="insert-body" type="button">Insert in body</button>
+      </div>
+      <p class="small">Placeholders in the subject or body become fill-in fields when the template is selected in Compose.</p>
+      <label>HTML content</label><div id="teditor"></div>
+      <div class="template-spacing">
+        <label>Line spacing<select id="tpl-line-spacing"><option value="1">1.0</option><option value="1.15">1.15</option><option value="1.3">1.3</option><option value="1.5" selected>1.5</option><option value="1.75">1.75</option><option value="2">2.0</option></select></label>
+        <label>Paragraph spacing<select id="tpl-paragraph-spacing"><option value="0">None</option><option value="4">4px</option><option value="8" selected>8px</option><option value="12">12px</option><option value="16">16px</option><option value="24">24px</option></select></label>
+      </div>
+      <label>Or upload HTML file</label><input type="file" id="tfup" accept=".html,.htm">
+      <p id="tfmsg" class="err"></p>
+      <label style="margin-top:8px">Fields detected from subject and body</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center" id="tfields"></div>
+      <div id="tfvals" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;"></div>
+      <div class="card preview-card" style="margin-top:14px;padding:14px;border-radius:12px;background:#f8fbff;border:1px solid #d5e6ff;">
+        <div style="font-size:11px;color:#4f6fa8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Preview</div>
+        <div id="tpj" style="font-size:17px;font-weight:800;margin-bottom:10px"></div>
+        <div id="tpb" style="font-size:13px;line-height:1.5;color:#0f172a"></div>
+      </div>
+      <p id="tmsg" class="err"></p><button class="p" id="tsv">Save template</button>
+    </div>`;
+  let tquill = new Quill('#teditor', { theme: 'snow', placeholder: 'Template body…', modules: { toolbar: [['bold','italic','underline'],[{list:'ordered'},{list:'bullet'}],['link','image'],['clean']] } });
+  let savedSchema = [];
+  const escId = s => String(s).replace(/[^a-z0-9]/gi, '_');
+  const tplKeys = () => [...new Set([...(tquill.root.innerHTML + $('#tsj').value).matchAll(/{{\s*(\w+)\s*}}/g)].map(m => m[1]))];
+  const fieldLabel = key => key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  const tplSchema = () => tplKeys().map(key => {
+    const saved = savedSchema.find(field => field.key === key);
+    const type = key === 'title' ? 'select' : key === 'due_date' ? 'date' : (saved?.type || 'text');
+    const options = key === 'title' ? ['Mr', 'Mrs', 'Ms', 'Sir', 'Madam'] : saved?.options;
+    return { key, label: saved?.label || fieldLabel(key), type, ...(options ? { options } : {}) };
+  });
+  const tplRenderFields = () => {
+    const fields = tplSchema();
+    $('#tfields').innerHTML = fields.length ? fields.map(field => `<span class="template-field">{{${esc(field.key)}}}</span>`).join('') : '<span class="small">No placeholders detected yet</span>';
+  };
+  const tplRenderVals = () => {
+    const previous = Object.fromEntries([...document.querySelectorAll('#tfvals [data-preview-field]')].map(el => [el.dataset.previewField, el.value]));
+    const keys = tplKeys();
+    $('#tfvals').innerHTML = keys.map(key => `<label style="font-size:11px;display:flex;align-items:center;gap:6px;white-space:nowrap">${esc(fieldLabel(key))}${key === 'title' ? `<select data-preview-field="title"><option value="">Select</option>${['Mr', 'Mrs', 'Ms', 'Sir', 'Madam'].map(title => `<option value="${title}" ${previous[key] === title ? 'selected' : ''}>${title}</option>`).join('')}</select>` : `<input type="${key === 'due_date' ? 'date' : 'text'}" data-preview-field="${esc(key)}" style="width:130px;padding:4px 8px;border:1px solid #d5e6ff;border-radius:8px;font:inherit;" value="${esc(previous[key] || '')}">`}</label>`).join('');
+    keys.forEach(key => { const el = document.querySelector(`#tfvals [data-preview-field="${key}"]`); if (el) { el.oninput = tplRenderPreview; el.onchange = tplRenderPreview; } });
+  };
+  const tplRenderPreview = () => {
+    const vals = Object.fromEntries([...document.querySelectorAll('#tfvals [data-preview-field]')].map(el => [el.dataset.previewField, el.value]));
+    const fill = text => text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => esc(vals[key] ?? ''));
+    $('#tpj').textContent = fill($('#tsj').value) || '(no subject)';
+    $('#tpb').innerHTML = fill(tquill.root.innerHTML) || '(empty)';
+  };
+  const tplRefresh = () => { tplRenderFields(); tplRenderVals(); tplRenderPreview(); };
+  const spacingBlocks = 'p,h1,h2,h3,h4,h5,h6,li,blockquote,pre';
+  const applySpacing = () => {
+    tquill.root.querySelectorAll(spacingBlocks).forEach(block => {
+      block.style.lineHeight = $('#tpl-line-spacing').value;
+      block.style.marginBottom = `${$('#tpl-paragraph-spacing').value}px`;
+    });
+    tplRefresh();
+  };
+  const readSpacing = () => {
+    const block = tquill.root.querySelector(spacingBlocks);
+    if (!block) return;
+    const lineSpacing = Number.parseFloat(block.style.lineHeight);
+    const paragraphSpacing = Number.parseFloat(block.style.marginBottom);
+    if (Number.isFinite(lineSpacing) && $('#tpl-line-spacing').querySelector(`option[value="${lineSpacing}"]`)) $('#tpl-line-spacing').value = String(lineSpacing);
+    if (Number.isFinite(paragraphSpacing) && $('#tpl-paragraph-spacing').querySelector(`option[value="${paragraphSpacing}"]`)) $('#tpl-paragraph-spacing').value = String(paragraphSpacing);
+  };
+  $('#tpl-line-spacing').onchange = applySpacing;
+  $('#tpl-paragraph-spacing').onchange = applySpacing;
+  $('#tfup').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    const html = await f.text();
+    if (!$('#tn').value.trim()) $('#tn').value = f.name.replace(/\.html?$/i, '').replace(/[-_]+/g, ' ').trim();
+    tquill.root.innerHTML = html;
+    readSpacing(); applySpacing();
+    $('#tfmsg').innerHTML = `<span class="ok">${html.length} bytes loaded, ${tplKeys().length} merge field(s) detected</span>`;
+  };
+  $('#insert-subject').onclick = () => {
+    const subject = $('#tsj'), token = `{{${$('#merge-key').value}}}`;
+    const start = subject.selectionStart ?? subject.value.length;
+    const end = subject.selectionEnd ?? start;
+    subject.value = subject.value.slice(0, start) + token + subject.value.slice(end);
+    subject.focus(); subject.setSelectionRange(start + token.length, start + token.length); tplRefresh();
+  };
+  $('#insert-body').onclick = () => {
+    const token = `{{${$('#merge-key').value}}}`;
+    const range = tquill.getSelection(true);
+    tquill.insertText(range?.index ?? Math.max(0, tquill.getLength() - 1), token);
+    tquill.focus();
+  };
+  $('#tsj').oninput = tplRefresh;
+  tquill.on('text-change', applySpacing);
+  $('#m').onclick = async e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.use) { sessionStorage.composeTemplateId = b.dataset.use; go('send'); return; }
+    if (b.dataset.d) { if (await showDialog('Delete template?', 'This permanently deletes the template.', true)) { await api('/api/templates/' + b.dataset.d, { m: 'DELETE' }); tpl(); } }
+    if (b.dataset.e) {
+      const t = ts.find(x => x.id == b.dataset.e);
+      $('#tn').value = t.name; $('#tsj').value = t.subject; savedSchema = t.fields || [];
+      tquill.root.innerHTML = t.html || '';
+      readSpacing(); applySpacing();
+      $('#tsv').textContent = 'Update template';
+      $('#tsv').dataset.upd = t.id;
+    }
+  };
+  $('#tsv').onclick = async () => {
+    const id = $('#tsv').dataset.upd;
+    const fields = tplSchema();
+    const body = { name: $('#tn').value, subject: $('#tsj').value, html: tquill.root.innerHTML, fields };
+    try {
+      if (id) { await api('/api/templates/' + id, { m: 'PUT', b: body }); delete $('#tsv').dataset.upd; $('#tsv').textContent = 'Save template'; }
+      else await api('/api/templates', { b: body });
+      tpl();
+    } catch (e) { $('#tmsg').textContent = e.message; }
+  };
+}
+
+// ---------- SENDERS ----------
+async function snd() {
+  const ss = await api('/api/senders');
+  $('#m').innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">${R === 'user' ? 'My senders' : 'Company senders'}</h3>
+      <table>
+        <thead><tr><th>From<th>Scope<th>Provider<th>Default<th>Status<th></th></thead>
+        <tbody>${ss.map(s => { const manageable = R !== 'user' || s.is_personal; return `<tr><td>${esc(s.from_name || '')} &lt;${esc(s.from_email)}&gt;<td><span class="badge">${s.is_personal ? 'Personal' : 'Company'}</span><td>${s.provider}<td>${s.is_default ? '<span class="badge ok">default</span>' : ''}<td><span class="badge ${s.status === 'active' ? 'ok' : 'bad'}">${s.status}</span><td>${manageable ? `<button data-f="${s.id}">Make default</button> <button class="danger" data-d="${s.id}">Remove</button>` : '<span class="small">Managed by company</span>'}</tr>`; }).join('')}</tbody>
+      </table>
+      ${ss.length ? '' : '<p class="empty">No senders configured.</p>'}
+      <p><button class="p" id="ol">${R === 'user' ? 'Connect my Outlook account' : 'Connect Outlook account'}</button></p>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">${R === 'user' ? 'Add my SMTP sender' : 'Add company SMTP sender'}</h3>
+      <div class="g"><div><label>Display name</label><input id="a1"><label>From email</label><input id="a2"><label>SMTP username</label><input id="a3"></div><div><label>Host</label><input id="a4"><label>Port</label><input id="a5" value="587"><label>Password</label><input id="a6" type="password"></div></div>
+      <p class="small">${R === 'user' ? 'Your SMTP account is private to your login.' : 'This sender is shared with the company.'}</p>
+      <p id="msg" class="err"></p><button class="p" id="sm">Test and save</button>
+    </div>`;
+  $('#ol').onclick = async () => { try { location = (await api('/api/senders/outlook/start', { b: {} })).url; } catch (e) { await showDialog('Could not connect Outlook', e.message); } };
+  $('#sm').onclick = async () => { const v = i => $('#a' + i).value; $('#msg').textContent = 'Testing…'; try { await api('/api/senders/smtp', { b: { name: v(1), email: v(2), user: v(3), host: v(4), port: v(5), pass: v(6) } }); snd(); } catch (e) { $('#msg').textContent = e.message; } };
+  $('#m').onclick = async e => { const d = e.target.dataset; if (d.d) { await api('/api/senders/' + d.d, { m: 'DELETE' }); snd(); } if (d.f) { await api(`/api/senders/${d.f}/default`, { b: {} }); snd(); } };
+}
+
+// ---------- CONTACTS ----------
+let contactsList = [];
+const recipientSubnav = section => `<nav class="recipient-subnav" aria-label="Recipients"><button type="button" class="${section === 'contacts' ? 'active' : ''}" data-recipient-view="contacts">Contacts</button><button type="button" class="${section === 'groups' ? 'active' : ''}" data-recipient-view="groups">Groups</button></nav>`;
+async function recipients() { return sessionStorage.recipientSection === 'groups' ? grp() : cts(); }
+async function cts() {
+  contactsList = await api('/api/contacts');
+  $('#m').innerHTML = `
+    <div class="contacts-page">
+      ${recipientSubnav('contacts')}
+      <section class="contacts-directory">
+        <div class="contacts-heading"><div><h3>Contacts</h3><span class="small">${contactsList.length} ${contactsList.length === 1 ? 'contact' : 'contacts'}</span></div><input id="contact-search" type="search" placeholder="Search name, email, or category"></div>
+        <div class="contacts-grid">${contactsList.map(c => `<article class="contact-item-card" data-search="${esc(`${c.name || ''} ${c.email} ${c.category || ''} ${c.status || ''}`.toLowerCase())}"><div class="contact-avatar">${esc((c.name || c.email).trim().charAt(0).toUpperCase())}</div><div class="contact-item-details"><div class="name">${esc(c.name || c.email)}</div><div class="email">${esc(c.email)}</div></div><div class="tags"><span class="contact-tag">${esc(c.category || 'general')}</span><span class="contact-tag">${esc(c.status || 'active')}</span></div><div class="contact-item-actions"><button class="secondary" data-e="${c.id}">Edit</button><button class="danger" data-d="${c.id}">Delete</button></div></article>`).join('')}</div>
+        ${contactsList.length ? '' : '<p class="empty">No contacts yet.</p>'}
+      </section>
+      <div class="contacts-management-grid">
+        <section class="card">
+          <h3 style="margin:0 0 12px 0;font-size:17px">Add contact</h3>
+          <label>Email</label><input id="ce"><label>Name</label><input id="cn"><label>Category</label><input id="ccat" placeholder="e.g. VIP, B2B, Partner"><label>Status</label><select id="cst"><option>active<option>unsubscribed<option>bounced</select>
+          <p id="cmsg" class="err"></p><button class="p" id="csv">Add contact</button>
+        </section>
+        <section class="card">
+          <h3 style="margin:0 0 12px 0;font-size:17px">Import contacts</h3>
+          <p class="small">CSV columns: email, name, category, status</p>
+          <input type="file" id="cfile" accept=".csv"><p id="cimsg" class="err"></p><button class="p" id="cimport">Import CSV</button>
+        </section>
+      </div>
+    </div>`;
+  $('#contact-search').oninput = e => {
+    const query = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.contact-item-card').forEach(card => { card.hidden = !card.dataset.search.includes(query); });
+  };
+  $('#csv').onclick = async () => {
+    try { await api('/api/contacts', { b: { email: $('#ce').value, name: $('#cn').value, category: $('#ccat').value, status: $('#cst').value } }); cts(); } catch (e) { $('#cmsg').textContent = e.message; }
+  };
+  $('#cimport').onclick = async () => {
+    const f = $('#cfile').files[0]; if (!f) return;
+    const text = await f.text();
+    Papa.parse(text, { header: true, skipEmptyLines: true, complete: res => {
+      const contacts = res.data.filter(r => r.email).map(r => ({ email: r.email, name: r.name || '', category: r.category || '', status: r.status || 'active' }));
+      api('/api/contacts/import', { b: { contacts } }).then(r => { $('#cimsg').innerHTML = `<span class="ok">${r.inserted} contact(s) imported</span>`; cts(); }).catch(e => { $('#cimsg').textContent = e.message; });
+    }});
+  };
+  $('#m').onclick = async e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.recipientView) { sessionStorage.recipientSection = b.dataset.recipientView; return b.dataset.recipientView === 'groups' ? grp() : cts(); }
+    if (b.dataset.d) { if (await showDialog('Delete contact?', 'This permanently deletes the contact.', true)) { await api('/api/contacts/' + b.dataset.d, { m: 'DELETE' }); cts(); } }
+    if (b.dataset.e) {
+      const c = contactsList.find(x => x.id == b.dataset.e);
+      $('#ce').value = c.email; $('#cn').value = c.name || ''; $('#ccat').value = c.category || ''; $('#cst').value = c.status || 'active';
+      $('#csv').textContent = 'Update contact';
+      $('#csv').dataset.upd = c.id;
+    }
+  };
+  const origCsv = $('#csv').onclick;
+  $('#csv').onclick = async () => {
+    const id = $('#csv').dataset.upd;
+    if (id) {
+      try { await api('/api/contacts/' + id, { m: 'PUT', b: { email: $('#ce').value, name: $('#cn').value, category: $('#ccat').value, status: $('#cst').value } }); delete $('#csv').dataset.upd; $('#csv').textContent = 'Add contact'; cts(); } catch (e) { $('#cmsg').textContent = e.message; }
+    } else { origCsv(); }
+  };
+}
+
+// ---------- GROUPS ----------
+async function grp() {
+  const gs = await api('/api/contact-groups');
+  const groups = await Promise.all(gs.map(async group => ({ ...group, members: await api(`/api/contact-groups/${group.id}/members`) })));
+  $('#m').innerHTML = `
+    <div class="groups-page">
+      ${recipientSubnav('groups')}
+      <section class="groups-directory">
+        <div class="contacts-heading"><div><h3>Recipient groups</h3><span class="small">${groups.length} ${groups.length === 1 ? 'group' : 'groups'}</span></div></div>
+        ${groups.length ? `<div class="groups-grid">${groups.map(group => `<article class="group-card">
+          <div class="group-card-header"><div><h4>${esc(group.name)}</h4><span class="small">Group #${group.id}</span></div><span class="group-count">${group.members.length} members</span></div>
+          ${group.members.length ? `<ul class="group-member-list">${group.members.map(member => `<li><div class="group-member-info"><strong>${esc(member.name || member.email)}</strong><span>${esc(member.email)}</span></div><button class="danger group-member-remove" aria-label="Remove ${esc(member.email)}" data-rm="${member.id}" data-g="${group.id}">Remove</button></li>`).join('')}</ul>` : '<div class="group-empty">No members in this group yet.</div>'}
+          <form class="group-add-form" data-group-add="${group.id}"><input type="email" data-group-email placeholder="Add member email" aria-label="Email to add to ${esc(group.name)}" required><button class="p" type="submit">Add</button></form>
+          <div class="group-card-actions"><button class="secondary" data-e="${group.id}">Rename</button><button class="danger" data-d="${group.id}">Delete group</button></div>
+        </article>`).join('')}</div>` : '<p class="empty">No groups yet.</p>'}
+      </section>
+      <section class="card">
+        <h3 style="margin:0 0 12px 0;font-size:17px">Create group</h3>
+        <label for="gn">Group name</label><input id="gn"><p id="gmsg" class="err"></p><button class="p" id="gsv">Save group</button>
+      </section>
+    </div>`;
+  $('#gsv').onclick = async () => { try { await api('/api/contact-groups', { b: { name: $('#gn').value } }); grp(); } catch (e) { $('#gmsg').textContent = e.message; } };
+  $('#m').onclick = async e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.recipientView) { sessionStorage.recipientSection = b.dataset.recipientView; return b.dataset.recipientView === 'groups' ? grp() : cts(); }
+    if (b.dataset.d) { if (await showDialog('Delete group?', 'This permanently deletes the group.', true)) { await api('/api/contact-groups/' + b.dataset.d, { m: 'DELETE' }); grp(); } }
+    if (b.dataset.e) { const g = gs.find(x => x.id == b.dataset.e); $('#gn').value = g.name; $('#gsv').textContent = 'Update group'; $('#gsv').dataset.upd = g.id; }
+    if (b.dataset.rm) { await api(`/api/contact-groups/${b.dataset.g}/members/${b.dataset.rm}`, { m: 'DELETE' }); await grp(); }
+  };
+  const origGsv = $('#gsv').onclick;
+  $('#gsv').onclick = async () => {
+    const id = $('#gsv').dataset.upd;
+    if (id) { try { await api('/api/contact-groups/' + id, { m: 'PUT', b: { name: $('#gn').value } }); delete $('#gsv').dataset.upd; $('#gsv').textContent = 'Save group'; grp(); } catch (e) { $('#gmsg').textContent = e.message; } } else { origGsv(); }
+  };
+  $('#m').onsubmit = async e => {
+    if (!e.target.matches('[data-group-add]')) return;
+    e.preventDefault();
+    const gid = e.target.dataset.groupAdd, email = e.target.querySelector('[data-group-email]').value.trim();
+    try {
+      let contact = (await api('/api/contacts')).find(item => item.email.toLowerCase() === email.toLowerCase());
+      if (!contact) {
+        await api('/api/contacts', { b: { email, name: '', category: '', status: 'active' } });
+        contact = (await api('/api/contacts')).find(item => item.email.toLowerCase() === email.toLowerCase());
+      }
+      await api(`/api/contact-groups/${gid}/members`, { b: { contactIds: [contact.id] } });
+      await grp();
+    } catch (error) { await showDialog('Could not add group member', error.message); }
+  };
+}
+
+// ---------- USERS ----------
+async function usr() {
+  const us = await api('/api/users');
+  $('#m').innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">Users</h3>
+      <table>
+        <thead><tr><th>Email<th>Role<th></th></thead>
+        <tbody>${us.map(u => `<tr><td>${esc(u.email)}<td>${u.role}</tr>`).join('')}</tbody>
+      </table>
+      ${us.length ? '' : '<p class="empty">No users.</p>'}
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">Add user</h3>
+      <label>Email</label><input id="e"><label>Password</label><input id="p" type="password"><label>Role</label><select id="r"><option>user<option>admin</select>
+      <p id="msg" class="err"></p><button class="p" id="ad">Add user</button>
+    </div>`;
+  $('#ad').onclick = async () => { try { await api('/api/users', { b: { email: $('#e').value, password: $('#p').value, role: $('#r').value } }); usr(); } catch (e) { $('#msg').textContent = e.message; } };
+}
+
+// ---------- COMPANIES ----------
+async function co() {
+  const cs = await api('/api/companies');
+  const totalSent = cs.reduce((sum, c) => sum + (Number(c.sent_count) || 0), 0);
+  let angle = 0;
+  const slices = cs.map((c, i) => {
+    const sent = Number(c.sent_count) || 0;
+    const start = angle;
+    angle += totalSent ? sent / totalSent * 360 : 0;
+    const colors = ['#113065', '#15803d', '#000080', '#7c3aed', '#e11d48', '#0891b2', '#f59e0b', '#84cc16'];
+    return { ...c, sent, start, end: angle, color: colors[i % colors.length], share: totalSent ? Math.round(sent / totalSent * 100) : 0 };
+  });
+  const chartBg = totalSent ? `conic-gradient(${slices.map(s => `${s.color} ${s.start}deg ${s.end}deg`).join(',')})` : 'conic-gradient(#dbeafe 0deg 360deg)';
+  $('#m').innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">Sent email distribution by company</h3>
+      <div class="company-chart-layout">
+        <div class="company-donut" role="img" aria-label="${totalSent} sent emails among ${cs.length} companies" style="background:${chartBg}">
+          <div class="company-donut-center"><strong>${totalSent}</strong><span>Total sent</span></div>
+        </div>
+        <ul class="company-chart-legend">${slices.map(s => `<li><div class="company-chart-label"><span class="company-chart-swatch" style="background:${s.color}"></span><span>${esc(s.name)}</span></div><span class="company-chart-value">${s.sent} · ${s.share}%</span></li>`).join('')}</ul>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">Companies</h3>
+      <div class="company-grid">${cs.map(c => `<article class="company-card">
+        <div class="company-card-top"><div><h4>${esc(c.name)}</h4><span class="small">Company #${c.id}</span></div></div>
+        <div class="company-card-sent"><span class="stat-chip" style="width:24px;height:24px;font-size:12px">${Number(c.sent_count || 0)}</span><span>emails sent</span></div>
+        <div class="company-card-actions"><button class="secondary" data-e="${c.id}">Edit</button> <button class="danger" data-d="${c.id}">Delete</button></div>
+        <form class="company-edit" data-edit-form="${c.id}" hidden><label>Company name</label><input data-name value="${esc(c.name)}"><div class="company-card-actions"><button class="p" type="submit">Save</button><button class="secondary" type="button" data-cancel>Cancel</button></div></form>
+      </article>`).join('')}</div>
+      ${cs.length ? '' : '<p class="empty">No companies.</p>'}
+      <label>New company</label><input id="n" maxlength="120"><p id="company-msg" class="err"></p><button class="p" id="ad">Add company</button>
+    </div>`;
+  $('#ad').onclick = async () => { try { await api('/api/companies', { b: { name: $('#n').value } }); await co(); await refreshCompanyPicker(); } catch (e) { $('#company-msg').textContent = e.message; } };
+  $('#m').onclick = async e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.edit) { $(`[data-edit-form="${b.dataset.edit}"]`).hidden = false; return; }
+    if (b.hasAttribute('data-cancel')) { b.closest('form').hidden = true; return; }
+    if (b.dataset.d) { if (await showDialog('Delete company?', 'This permanently deletes the company and all its data.', true)) { await api('/api/companies/' + b.dataset.d, { m: 'DELETE' }); await co(); await refreshCompanyPicker(); } }
+    if (b.dataset.e) { const c = cs.find(x => x.id == b.dataset.e); $('#n').value = c.name; $('#ad').textContent = 'Update company'; $('#ad').dataset.upd = c.id; }
+  };
+  $('#m').onsubmit = async e => {
+    if (!e.target.matches('[data-edit-form]')) return;
+    e.preventDefault();
+    try { await api('/api/companies/' + e.target.dataset.editForm, { m: 'PUT', b: { name: e.target.querySelector('[data-name]').value } }); await co(); await refreshCompanyPicker(); } catch (e) { await showDialog('Could not update company', e.message); }
+  };
+}
+
+// ---------- DRAFTS ----------
+async function drafts() {
+  const items = await api('/api/drafts');
+  $('#m').innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">Drafts</h3>
+      <table>
+        <thead><tr><th>Saved<th>To<th>CC<th>Subject<th></th></tr></thead>
+        <tbody>${items.map(item => `<tr><td>${esc(item.at)}<td>${esc(item.to_list || '—')}<td>${esc(item.cc_list || '—')}<td>${esc(item.subject || '(no subject)')}<td><button class="secondary" data-open-draft="${item.id}">Edit</button> <button class="danger" data-delete-draft="${item.id}">Delete</button></tr>`).join('')}</tbody>
+      </table>
+      ${items.length ? '' : '<p class="empty">No saved drafts yet.</p>'}
+    </div>`;
+  $('#m').onclick = async event => {
+    const button = event.target.closest('button'); if (!button) return;
+    if (button.dataset.openDraft) { sessionStorage.editDraftId = button.dataset.openDraft; go('send'); return; }
+    if (button.dataset.deleteDraft && await showDialog('Delete draft?', 'This permanently deletes the saved draft and its attachments.', true)) {
+      try { await api('/api/drafts/' + button.dataset.deleteDraft, { m: 'DELETE' }); await drafts(); }
+      catch (error) { await showDialog('Could not delete draft', error.message); }
+    }
+  };
+}
+
+// ---------- SENT LOG ----------
+async function log() {
+  const l = (await api('/api/sent')).filter(item => item.status !== 'draft');
+  $('#m').innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">Sent log</h3>
+      <table>
+        <thead><tr><th>When<th>To<th>Subject<th>Status<th>Error</th></thead>
+        <tbody>${l.map(x => `<tr><td>${esc(x.at)}<td>${esc(x.to_list)}<td>${esc(x.subject)}<td><span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${x.status}${x.scheduled_at ? ' · scheduled' : ''}</span><td>${x.error ? esc(x.error) : '—'}</tr>`).join('')}</tbody>
+      </table>
+      ${l.length ? '' : '<p class="empty">No sent emails.</p>'}
+    </div>`;
+}
+
+// ---------- TRACKING ----------
+async function trk() {
+  const l = await api('/api/sent');
+  $('#m').innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 12px 0;font-size:17px">Tracking events</h3>
+      <table>
+        <thead><tr><th>When<th>Email<th>Event<th>IP<th>User agent</th></thead>
+        <tbody id="trk-body"></tbody>
+      </table>
+    </div>`;
+  const body = $('#trk-body');
+  if (!l.length) { body.innerHTML = '<tr><td colspan="5" class="empty">No sent emails yet.</td></tr>'; return; }
+  for (const x of l) {
+    const evs = await api(`/api/track/events/${x.id}`).catch(() => []);
+    const rows = evs.map(e => `<tr><td class="tracking-table">${esc(x.at)}<td class="tracking-table">${esc(x.subject)}<td><span class="tracking-badge track-${e.event_type}">${e.event_type}</span><td class="tracking-table">${esc(e.ip)}<td class="tracking-table">${esc(e.user_agent || '-')}</tr>`).join('');
+    body.innerHTML += `<tr><td colspan="5"><div class="card" style="padding:10px;margin-top:8px;"><strong>${esc(x.subject)}</strong> (${x.status})${rows}</div></td></tr>`;
+  }
+}
+
+const V = { send, drafts, tpl, snd, recipients, usr, co, trk, log };
+boot();
+</script>
+</body>
+</html>

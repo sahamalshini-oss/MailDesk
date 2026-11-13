@@ -1,0 +1,11 @@
+const express = require('express');
+const app = express();
+app.use(express.json());
+app.get('/api/me/companies', (q, s) => s.json({ ok: true }));
+app.get('/api/templates', (q, s) => s.json({ ok: true }));
+app.get('/api/campaigns', (q, s) => s.json({ ok: true }));
+app.get('/api/recipient-companies', (q, s) => s.json({ ok: true }));
+app.get('/api/templates/:id', (q, s) => s.json({ ok: true, id: q.params.id }));
+app.get('/api/campaigns/:id', (q, s) => s.json({ ok: true, id: q.params.id }));
+app.get('/api/recipient-companies/:id', (q, s) => s.json({ ok: true, id: q.params.id }));
+app.listen(5002, () => console.log('test on 5002'));

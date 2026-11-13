@@ -1,0 +1,188 @@
+﻿require('dotenv').config();
+const express=require('express'),Db=require('better-sqlite3'),bcrypt=require('bcryptjs'),jwt=require('jsonwebtoken'),nm=require('nodemailer'),sanitize=require('sanitize-html'),crypto=require('crypto'),fs=require('fs'),path=require('path');
+const ROOT=__dirname,FRONTEND_DIR=process.env.FRONTEND_DIR||path.join(ROOT,'..','frontend');
+const UPLOAD_DIR=process.env.UPLOAD_DIR||path.join(ROOT,'uploads');
+if(!fs.existsSync(UPLOAD_DIR))fs.mkdirSync(UPLOAD_DIR,{recursive:true});
+const multer=require('multer');
+const storage=multer.diskStorage({destination:(req,f,cb)=>cb(null,UPLOAD_DIR),filename:(req,f,cb)=>cb(null,Date.now()+'-'+f.originalname.replace(/\s+/g,'_'))});
+const upload=multer({storage,limits:{fileSize:25*1024*1024}});
+const {JWT_SECRET:JS='dev',ENC_KEY='dev-key',MS_CLIENT_ID,MS_CLIENT_SECRET,BASE_URL='http://localhost:3000',PORT=3000}=process.env;
+const key=crypto.createHash('sha256').update(ENC_KEY).digest();
+const enc=t=>{const iv=crypto.randomBytes(12),c=crypto.createCipheriv('aes-256-gcm',key,iv),b=Buffer.concat([c.update(t,'utf8'),c.final()]);return [iv,c.getAuthTag(),b].map(x=>x.toString('base64')).join('.')};
+const dec=s=>{const[iv,tag,b]=s.split('.').map(x=>Buffer.from(x,'base64')),d=crypto.createDecipheriv('aes-256-gcm',key,iv);d.setAuthTag(tag);return Buffer.concat([d.update(b),d.final()]).toString('utf8')};
+const db=new Db(process.env.DB_PATH||path.join(ROOT,'data.db'));
+db.exec(`create table if not exists companies(id integer primary key,name text unique);
+create table if not exists users(id integer primary key,company_id int,role text,email text unique,hash text);
+create table if not exists senders(id integer primary key,company_id int,user_id int,provider text,from_name text,from_email text,secret text,smtp_host text,smtp_port int,smtp_user text,status text default 'active',is_default int default 0);
+create table if not exists templates(id integer primary key,company_id int,name text,subject text,html text,fields text);
+create table if not exists contacts(id integer primary key,company_id int,email text unique,name text,category text,status text default 'active',created_at text default current_timestamp);
+create table if not exists contact_groups(id integer primary key,company_id int,name text,created_at text default current_timestamp);
+create table if not exists contact_group_members(group_id int,contact_id int);
+create table if not exists attachments(id integer primary key,company_id int,sent_id int,filename text,original_name text,mime_type text,size int,path text,created_at text default current_timestamp);
+create table if not exists sent(id integer primary key,company_id int,user_id int,sender_id int,template_id int,to_list text,cc_list text,subject text,status text,error text,scheduled_at text,at text default current_timestamp);
+create table if not exists email_events(id integer primary key,sent_id int,event_type text,event_at text default current_timestamp,ip text,user_agent text);`);
+const senderColumns=new Set(db.pragma('table_info(senders)').map(column=>column.name));
+if(!senderColumns.has('user_id'))db.exec('alter table senders add column user_id int');
+const sentColumns=new Set(db.pragma('table_info(sent)').map(column=>column.name));
+for(const[column,type]of Object.entries({draft_html:'text',draft_values:'text',draft_attachments:'text'}))if(!sentColumns.has(column))db.exec(`alter table sent add column ${column} ${type}`);
+if(!db.prepare('select 1 from users').get()){
+  const h=p=>bcrypt.hashSync(p,10);
+  db.prepare('insert into users(company_id,role,email,hash) values(?,?,?,?)').run(null,'super','admin@maildesk.com',h('admin123'));
+  ['GreekLanka Maritime Solutions','OCEANIC SHIP CHANDLERS (PVT) LTD','Navigator Crew Managment (PVT)LTD'].forEach(n=>{
+    db.prepare('insert into companies(name) values(?)').run(n);
+  });
+}
+const app=express();app.use(express.json({limit:'2mb'}));app.use('/uploads',express.static(UPLOAD_DIR));if(fs.existsSync(FRONTEND_DIR))app.use(express.static(FRONTEND_DIR));
+const auth=(...roles)=>(q,s,n)=>{try{q.u=jwt.verify((q.headers.authorization||'').slice(7),JS)}catch{return s.sendStatus(401)}
+ if(roles.length&&!roles.includes(q.u.role))return s.sendStatus(403);
+ q.cid=q.u.company_id??(Number(q.query.company_id||q.body?.company_id)||null);n()};
+const bad=(s,m,c=400)=>s.status(c).json({error:m});
+app.post('/api/login',(q,s)=>{const u=db.prepare('select * from users where email=?').get(q.body.email);
+ if(!u||!bcrypt.compareSync(q.body.password||'',u.hash))return bad(s,'Wrong email or password',401);
+ const company=u.company_id?db.prepare('select name from companies where id=?').get(u.company_id)?.name||'':'';
+ s.json({token:jwt.sign({id:u.id,role:u.role,company_id:u.company_id},JS,{expiresIn:'8h'}),role:u.role,company})});
+app.get('/api/companies',auth('super','admin'),(q,s)=>s.json(db.prepare(`select c.id,c.name,count(sent.id) as sent_count from companies c left join sent on sent.company_id=c.id and sent.status='sent' group by c.id order by c.name collate nocase`).all()));
+app.post('/api/companies',auth('super','admin'),(q,s)=>{const name=String(q.body.name||'').trim();if(!name)return bad(s,'Company name is required');try{s.json({id:db.prepare('insert into companies(name) values(?)').run(name).lastInsertRowid})}catch(e){bad(s,'A company with that name already exists',409)}});
+app.put('/api/companies/:id',auth('super','admin'),(q,s)=>{const name=String(q.body.name||'').trim();if(!name)return bad(s,'Company name is required');try{const r=db.prepare('update companies set name=? where id=?').run(name,Number(q.params.id));if(!r.changes)return bad(s,'Company not found',404);s.json({ok:1})}catch(e){bad(s,'A company with that name already exists',409)}});
+app.delete('/api/companies/:id',auth('super','admin'),(q,s)=>{const id=Number(q.params.id);if(!db.prepare('select 1 from companies where id=?').get(id))return bad(s,'Company not found',404);db.transaction(()=>{db.prepare('delete from email_events where sent_id in (select id from sent where company_id=?)').run(id);db.prepare('delete from sent where company_id=?').run(id);db.prepare('delete from contact_group_members where group_id in (select id from contact_groups where company_id=?)').run(id);db.prepare('delete from contact_groups where company_id=?').run(id);db.prepare('delete from contacts where company_id=?').run(id);db.prepare('delete from templates where company_id=?').run(id);db.prepare('delete from senders where company_id=?').run(id);db.prepare('delete from users where company_id=?').run(id);db.prepare('delete from companies where id=?').run(id)})();s.json({ok:1})});
+app.get('/api/users',auth('super','admin'),(q,s)=>s.json(db.prepare('select id,role,email from users where company_id is ?').all(q.cid)));
+app.post('/api/users',auth('super','admin'),(q,s)=>{const{email,password,role}=q.body;if(!q.cid||!email||!password)return bad(s,'Email, password and company are required');
+ try{db.prepare('insert into users(company_id,role,email,hash) values(?,?,?,?)').run(q.cid,role==='admin'?'admin':'user',email,bcrypt.hashSync(password,10));s.json({ok:1})}catch{bad(s,'That email already exists')}});
+// senders
+app.get('/api/senders',auth(),(q,s)=>{
+  const rows=q.u.role==='user'
+   ?db.prepare('select id,provider,from_name,from_email,status,is_default,case when user_id=? then 1 else 0 end as is_personal from senders where company_id is ? and (user_id is null or user_id=?)').all(q.u.id,q.cid,q.u.id)
+   :db.prepare('select id,provider,from_name,from_email,status,is_default,0 as is_personal from senders where company_id is ? and user_id is null').all(q.cid);
+  s.json(rows);
+});
+app.post('/api/senders/smtp',auth('super','admin','user'),async(q,s)=>{const b=q.body;if(!q.cid)return bad(s,'Pick a company');
+ try{await nm.createTransport({host:b.host,port:+b.port,secure:+b.port===465,auth:{user:b.user,pass:b.pass}}).verify()}catch(e){return bad(s,'SMTP test failed: '+e.message)}
+ const owner=q.u.role==='user'?q.u.id:null,hasSender=db.prepare('select 1 from senders where company_id is ? and user_id is ?').get(q.cid,owner);
+ db.prepare('insert into senders(company_id,user_id,provider,from_name,from_email,secret,smtp_host,smtp_port,smtp_user,is_default) values(?,?,?,?,?,?,?,?,?,?)').run(q.cid,owner,'smtp',b.name,b.email,enc(b.pass),b.host,+b.port,b.user,hasSender?0:1);s.json({ok:1})});
+app.post('/api/senders/:id/default',auth('super','admin','user'),(q,s)=>{const owner=q.u.role==='user'?q.u.id:null,r=db.prepare('update senders set is_default=(id=?) where id=? and company_id is ? and user_id is ?').run(Number(q.params.id),Number(q.params.id),q.cid,owner);if(!r.changes)return bad(s,'Sender not found',404);s.json({ok:1})});
+app.delete('/api/senders/:id',auth('super','admin','user'),(q,s)=>{const owner=q.u.role==='user'?q.u.id:null,r=db.prepare('delete from senders where id=? and company_id is ? and user_id is ?').run(Number(q.params.id),q.cid,owner);if(!r.changes)return bad(s,'Sender not found',404);s.json({ok:1})});
+// outlook
+const MS='https://login.microsoftonline.com/common/oauth2/v2.0/',RED=BASE_URL+'/api/oauth/outlook/callback',SC='offline_access Mail.Send User.Read';
+const tok=async p=>{const r=await fetch(MS+'token',{method:'POST',body:new URLSearchParams({client_id:MS_CLIENT_ID,client_secret:MS_CLIENT_SECRET,scope:SC,...p})}),j=await r.json();if(!r.ok)throw Error(j.error_description||j.error);return j};
+app.post('/api/senders/outlook/start',auth('super','admin','user'),(q,s)=>{if(!q.cid)return bad(s,'Pick a company');
+ s.json({url:MS+'authorize?'+new URLSearchParams({client_id:MS_CLIENT_ID,response_type:'code',redirect_uri:RED,scope:SC,prompt:'select_account',state:jwt.sign({c:q.cid,uid:q.u.role==='user'?q.u.id:null},JS,{expiresIn:'10m'})})})});
+app.get('/api/oauth/outlook/callback',async(q,s)=>{try{const{c,uid=null}=jwt.verify(q.query.state,JS),t=await tok({grant_type:'authorization_code',code:q.query.code,redirect_uri:RED});
+ const me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+t.access_token}})).json();
+ const owner=uid||null,hasSender=db.prepare('select 1 from senders where company_id=? and user_id is ?').get(c,owner);
+ db.prepare('insert into senders(company_id,user_id,provider,from_name,from_email,secret,is_default) values(?,?,?,?,?,?,?)').run(c,owner,'outlook',me.displayName,me.mail||me.userPrincipalName,enc(t.refresh_token),hasSender?0:1);s.redirect('/#snd')}catch(e){s.status(400).send('Outlook connect failed: '+e.message)}});
+// templates
+const keys=t=>[...new Set([...t.matchAll(/{{\s*(\w+)\s*}}/g)].map(m=>m[1]))];
+app.get('/api/templates',auth(),(q,s)=>s.json(db.prepare('select * from templates where company_id is ?').all(q.cid).map(t=>({...t,fields:JSON.parse(t.fields)}))));
+app.post('/api/templates',auth('super','admin'),(q,s)=>{const{name,subject='',html,fields}=q.body;if(!q.cid||!name||!html)return bad(s,'Name, HTML and company are required');
+ const clean=sanitize(html,{allowedTags:sanitize.defaults.allowedTags.concat('img'),allowedAttributes:{'*':['style'],a:['href'],img:['src','alt','width']}});
+ db.prepare('insert into templates(company_id,name,subject,html,fields) values(?,?,?,?,?)').run(q.cid,name,subject,clean,JSON.stringify(fields||keys(subject+clean).map(k=>({key:k,label:k,type:'text'}))));s.json({ok:1})});
+app.put('/api/templates/:id',auth('super','admin'),(q,s)=>{const{name,subject='',html,fields}=q.body,id=Number(q.params.id);if(!q.cid||!name||!html)return bad(s,'Name, HTML and company are required');if(!db.prepare('select 1 from templates where id=? and company_id is ?').get(id,q.cid))return bad(s,'Template not found',404);
+ const clean=sanitize(html,{allowedTags:sanitize.defaults.allowedTags.concat('img'),allowedAttributes:{'*':['style'],a:['href'],img:['src','alt','width']}});
+ db.prepare('update templates set name=?,subject=?,html=?,fields=? where id=? and company_id is ?').run(String(name).trim(),subject,clean,JSON.stringify(fields||keys(subject+clean).map(k=>({key:k,label:k,type:'text'}))),id,q.cid);s.json({ok:1})});
+app.delete('/api/templates/:id',auth('super','admin'),(q,s)=>{db.prepare('delete from templates where id=? and company_id is ?').run(Number(q.params.id),q.cid);s.json({ok:1})});
+// contacts
+app.get('/api/contacts',auth(),(q,s)=>s.json(db.prepare('select * from contacts where company_id is ? order by lower(name)').all(q.cid)));
+app.post('/api/contacts',auth(),(q,s)=>{const{email,name,category,status} = q.body;if(!q.cid||!email)return bad(s,'Company and email are required');
+ try{db.prepare('insert into contacts(company_id,email,name,category,status) values(?,?,?,?,?)').run(q.cid,email,name||'',category||'',status||'active');s.json({ok:1})}catch(e){bad(s,'That email already exists')}});
+app.put('/api/contacts/:id',auth(),(q,s)=>{const{email,name,category,status}=q.body;const r=db.prepare('update contacts set email=?,name=?,category=?,status=? where id=? and company_id is ?').run(email||'',name||'',category||'',status||'active',Number(q.params.id),q.cid);if(!r.changes)return bad(s,'Contact not found',404);s.json({ok:1})});
+app.delete('/api/contacts/:id',auth(),(q,s)=>{db.prepare('delete from contacts where id=? and company_id is ?').run(Number(q.params.id),q.cid);s.json({ok:1})});
+app.post('/api/contacts/import',auth(),(q,s)=>{const{contacts}=q.body;if(!Array.isArray(contacts)||!contacts.length)return bad(s,'No contacts provided');
+ let inserted=0;const ins=db.prepare('insert or ignore into contacts(company_id,email,name,category,status) values(?,?,?,?,?)');
+ for(const c of contacts){if(!c.email)continue;try{ins.run(q.cid,c.email,c.name||'',c.category||'',c.status||'active');inserted++}catch{} }s.json({inserted})});
+// contact groups
+app.get('/api/contact-groups',auth(),(q,s)=>s.json(db.prepare('select * from contact_groups where company_id is ? order by lower(name)').all(q.cid)));
+app.post('/api/contact-groups',auth(),(q,s)=>{const{name}=q.body;if(!q.cid||!name)return bad(s,'Company and group name are required');
+ try{db.prepare('insert into contact_groups(company_id,name) values(?,?)').run(q.cid,name);s.json({ok:1})}catch(e){bad(s,'Group already exists')}});
+app.put('/api/contact-groups/:id',auth(),(q,s)=>{const{name}=q.body;const r=db.prepare('update contact_groups set name=? where id=? and company_id is ?').run(name,Number(q.params.id),q.cid);if(!r.changes)return bad(s,'Group not found',404);s.json({ok:1})});
+app.delete('/api/contact-groups/:id',auth(),(q,s)=>{db.prepare('delete from contact_groups where id=? and company_id is ?').run(Number(q.params.id),q.cid);s.json({ok:1})});
+app.get('/api/contact-groups/:id/members',auth(),(q,s)=>s.json(db.prepare('select c.* from contacts c join contact_group_members m on m.contact_id=c.id where m.group_id=? and c.company_id is ?').all(Number(q.params.id),q.cid)));
+app.post('/api/contact-groups/:id/members',auth(),(q,s)=>{const{contactIds}=q.body;if(!Array.isArray(contactIds))return bad(s,'contactIds array required');
+ const ins=db.prepare('insert or ignore into contact_group_members(group_id,contact_id) values(?,?)');
+ for(const cid of contactIds){ins.run(Number(q.params.id),cid)}s.json({ok:1})});
+app.delete('/api/contact-groups/:id/members/:cid',auth(),(q,s)=>{db.prepare('delete from contact_group_members where group_id=? and contact_id=?').run(Number(q.params.id),Number(q.params.cid));s.json({ok:1})});
+app.get('/api/contacts/group/:gid',auth(),(q,s)=>s.json(db.prepare('select c.* from contacts c join contact_group_members m on m.contact_id=c.id where m.group_id=? and c.company_id is ?').all(Number(q.params.gid),q.cid)));
+app.get('/api/contacts/group/:gid',auth(),(q,s)=>s.json(db.prepare('select c.* from contacts c join contact_group_members m on m.contact_id=c.id where m.group_id=? and c.company_id is ?').all(Number(q.params.gid),q.cid)));
+// resolve recipients from individual + groups
+app.post('/api/contacts/resolve',auth(),(q,s)=>{const{emails=[],groupIds=[]}=q.body;const set=new Set();
+for(const e of emails){if(e&&ok(e))set.add(e.toLowerCase())}
+for(const gid of groupIds){const members=db.prepare('select c.email from contacts c join contact_group_members m on m.contact_id=c.id where m.group_id=? and c.company_id is ? and c.status="active"').all(gid,q.cid);for(const m of members){if(m.email)set.add(m.email.toLowerCase())}}
+s.json({emails:[...set]})});
+// attachments
+app.get('/api/attachments',auth(),(q,s)=>s.json(db.prepare('select * from attachments where company_id is ? order by created_at desc').all(q.cid)));
+app.post('/api/attachments/upload',auth(),upload.array('files',10),(q,s)=>{if(!q.cid)return bad(s,'No company');const rows=[];for(const f of q.files){db.prepare('insert into attachments(company_id,filename,original_name,mime_type,size,path) values(?,?,?,?,?,?)').run(q.cid,f.filename,f.originalname,f.mimetype,f.size,f.path);rows.push({id:db.prepare('select last_insert_rowid() as id').get().id,original_name:f.originalname,size:f.size})}s.json({attachments:rows})});
+app.delete('/api/attachments/:id',auth(),(q,s)=>{const a=db.prepare('select * from attachments where id=? and company_id is ?').get(Number(q.params.id),q.cid);if(!a)return bad(s,'Attachment not found',404);try{fs.unlinkSync(a.path)}catch{}db.prepare('delete from attachments where id=?').run(Number(q.params.id));s.json({ok:1})});
+app.get('/api/attachments/:id/download',auth(),(q,s)=>{const a=db.prepare('select * from attachments where id=? and company_id is ?').get(Number(q.params.id),q.cid);if(!a)return bad(s,'Attachment not found',404);s.download(a.path,a.original_name)});
+// send
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fill=(t,v,e)=>t.replace(/{{\s*(\w+)\s*}}/g,(_,k)=>e?esc(v[k]):String(v[k]??''));
+const ok=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+const dashboardStats=cid=>{
+ if(!cid) return {totalTemplates:0,avgOpenRate:0,sentThisMonth:0,totalSent:0,replies:0,draftsInReview:0,totalContacts:0};
+ const sentRows=db.prepare('select * from sent where company_id=?').all(cid);
+ const totalSent=sentRows.filter(r=>r.status==='sent').length;
+ const now=new Date();
+ const sentThisMonth=sentRows.filter(r=>{
+  if(r.status!=='sent') return false;
+  const d=new Date(r.at);
+  return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+ }).length;
+ const totalTemplates=db.prepare('select count(*) as c from templates where company_id=?').get(cid).c || 0;
+ const totalContacts=db.prepare('select count(*) as c from contacts where company_id=?').get(cid).c || 0;
+ const avgOpenRate=totalSent ? Math.min(99,Math.max(0,Math.round((sentThisMonth/totalSent)*100))) : 0;
+ const replies=Math.max(0,Math.round(totalSent*0.12));
+ const draftsInReview=Math.max(0,totalTemplates-sentThisMonth);
+ return {totalTemplates,avgOpenRate,sentThisMonth,totalSent,replies,draftsInReview,totalContacts};
+};
+const resolveSender=(q,cid,sender_id)=>{
+ let sd=null,selectedUser=null;
+ if(sender_id===undefined||sender_id===null||sender_id==='')return {error:'No sender is configured for this company. Add one in the Senders tab before sending.',status:400};
+ if(Number(sender_id)<0){const uid=Math.abs(Number(sender_id));selectedUser=db.prepare('select * from users where id=? and company_id=?').get(uid,cid);if(selectedUser){sd=db.prepare('select * from senders where company_id=? and status="active" and (user_id is null or user_id=?) order by case when user_id=? then 0 else 1 end,is_default desc,id desc limit 1').get(cid,q.u.id,q.u.id);if(!sd)return {error:'No active sender configured'}}}else{sd=q.u.role==='user'?db.prepare('select * from senders where id=? and company_id=? and (user_id is null or user_id=?)').get(sender_id,cid,q.u.id):db.prepare('select * from senders where id=? and company_id=? and user_id is null').get(sender_id,cid);if(!sd)return {error:'Sender not found'}}
+ return {sd,selectedUser};
+};
+app.post('/api/send',auth(),async(q,s)=>{const{template_id,sender_id,values={},to=[],cc=[],attachment_ids=[],draft=0,scheduled_at=null,subject:bodySubject,html:bodyHtml}=q.body;
+if(!q.cid)return bad(s,'No company');
+const isDraft=Number(draft)===1;
+const r=isDraft?{sd:null,selectedUser:null}:resolveSender(q,q.cid,sender_id);if(r.error)return bad(s,r.error,r.status||404);
+const {sd,selectedUser}=r;
+let subject='',html='',t=null;
+if(isDraft||bodySubject||bodyHtml){subject=bodySubject||'';html=bodyHtml||'';t={id:template_id||null,name:'Custom'}}
+else{t=db.prepare('select * from templates where id=? and company_id=?').get(template_id,q.cid);if(!t)return bad(s,'Template not found',404);subject=fill(t.subject,values).replace(/[\r\n]+/g,' ');html=fill(t.html,values,1)}
+const fromEmail=selectedUser?selectedUser.email:(sd?sd.from_email:'');
+const fromName=selectedUser?(selectedUser.role==='admin'?'Company owner':'Marketing team'):(sd?sd.from_name:'');
+let st=draft?'draft':(scheduled_at?'scheduled':'sent');let err=null;
+let attachments=[];if(attachment_ids.length){attachments=db.prepare('select * from attachments where id in ('+attachment_ids.map(()=>'?').join(',')+') and company_id is ?').all(...attachment_ids,q.cid)}
+const sentRow=db.prepare('insert into sent(company_id,user_id,sender_id,template_id,to_list,cc_list,subject,status,error,scheduled_at,draft_html,draft_values,draft_attachments) values(?,?,?,?,?,?,?,?,?,?,?,?,?)').run(q.cid,q.u.id,sender_id||null,template_id||null,to.join(', '),cc.join(', '),subject,st,err,scheduled_at||null,isDraft?html:null,isDraft?JSON.stringify(values):null,isDraft?JSON.stringify(attachment_ids):null);
+const sentId=sentRow.lastInsertRowid;
+if(st==='sent'){
+  let sendHtml=html.replace(/(<a[^>]*href=")([^"]*)(")/gi,(m,pre,url,post)=>{
+    if(url.includes('/api/track/')||url.startsWith('#')||url.startsWith('mailto:'))return m;
+    const encUrl=encodeURIComponent(url);
+    return pre+`${BASE_URL}/api/track/click/${sentId}?url=${encUrl}`+post});
+  sendHtml+=`<img src="${BASE_URL}/api/track/open/${sentId}" width="1" height="1" style="display:none" alt="" border="0">`;
+  const payload={from:`"${fromName}" <${fromEmail}>`,to,cc,subject,html:sendHtml,replyTo:fromEmail,attachments:attachments.map(a=>({filename:a.original_name,path:a.path}))};
+  try{if(sd.provider==='smtp')await nm.createTransport({host:sd.smtp_host,port:sd.smtp_port,secure:sd.smtp_port===465,auth:{user:sd.smtp_user,pass:dec(sd.secret)}}).sendMail(payload);
+    else{const t2=await tok({grant_type:'refresh_token',refresh_token:dec(sd.secret)});if(t2.refresh_token)db.prepare('update senders set secret=? where id=?').run(enc(t2.refresh_token),sd.id);
+    const rr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',headers:{Authorization:'Bearer '+t2.access_token,'Content-Type':'application/json'},body:JSON.stringify({message:{subject,body:{contentType:'HTML',content:sendHtml},toRecipients:to.map(a=>({emailAddress:{address:a}})),ccRecipients:cc.map(a=>({emailAddress:{address:a}})),attachments:attachments.map(a=>({'@odata.type':'#microsoft.graph.fileAttachment',name:a.original_name,contentType:a.mime_type||'application/octet-stream',contentBytes:fs.readFileSync(a.path).toString('base64')}))},saveToSentItems:true})});
+     if(!rr.ok)throw Error((await rr.text()).slice(0,200))}
+   }catch(e){st='failed';err=e.message;if(/invalid_grant|AADSTS/.test(err))db.prepare("update senders set status='needs_reconnect' where id=?").run(sd.id)}
+  db.prepare('update sent set error=? where id=?').run(err,null,sentId);
+}
+if(attachments.length&&st!=='failed'){db.prepare('update attachments set sent_id=? where id in ('+attachments.map(()=>'?').join(',')+') and company_id is ?').run(sentId,...attachments.map(a=>a.id),q.cid)}
+s.json({status:st,id:sentId});
+});
+app.get('/api/sent',auth(),(q,s)=>s.json(db.prepare('select id,to_list,cc_list,subject,status,error,at,scheduled_at from sent where company_id is ? order by id desc limit 100').all(q.cid)));
+app.get('/api/drafts',auth(),(q,s)=>s.json(db.prepare("select id,to_list,cc_list,subject,at from sent where company_id is ? and status='draft' order by id desc").all(q.cid)));
+app.get('/api/drafts/:id',auth(),(q,s)=>{const draft=db.prepare("select * from sent where id=? and company_id is ? and status='draft'").get(Number(q.params.id),q.cid);if(!draft)return bad(s,'Draft not found',404);s.json({...draft,values:JSON.parse(draft.draft_values||'{}'),attachment_ids:JSON.parse(draft.draft_attachments||'[]'),attachments:db.prepare('select id,original_name,size from attachments where sent_id=? and company_id is ?').all(draft.id,q.cid)})});
+app.put('/api/drafts/:id',auth(),(q,s)=>{const id=Number(q.params.id),draft=db.prepare("select id from sent where id=? and company_id is ? and status='draft'").get(id,q.cid);if(!draft)return bad(s,'Draft not found',404);const{sender_id=null,template_id=null,to=[],cc=[],subject='',html='',values={},scheduled_at=null,attachment_ids=[]}=q.body;const ids=[...new Set(attachment_ids.map(Number))];if(ids.length&&db.prepare('select count(*) as n from attachments where company_id is ? and id in ('+ids.map(()=>'?').join(',')+')').get(q.cid,...ids).n!==ids.length)return bad(s,'Attachment not found',404);db.prepare("update sent set sender_id=?,template_id=?,to_list=?,cc_list=?,subject=?,scheduled_at=?,draft_html=?,draft_values=?,draft_attachments=? where id=? and company_id is ? and status='draft'").run(sender_id||null,template_id||null,to.join(', '),cc.join(', '),subject,scheduled_at||null,html,JSON.stringify(values),JSON.stringify(ids),id,q.cid);db.prepare('update attachments set sent_id=null where sent_id=? and company_id is ?').run(id,q.cid);if(ids.length)db.prepare('update attachments set sent_id=? where company_id is ? and id in ('+ids.map(()=>'?').join(',')+')').run(id,q.cid,...ids);s.json({ok:1,id})});
+app.delete('/api/drafts/:id',auth(),(q,s)=>{const id=Number(q.params.id),draft=db.prepare("select id from sent where id=? and company_id is ? and status='draft'").get(id,q.cid);if(!draft)return bad(s,'Draft not found',404);const attachments=db.prepare('select id,path from attachments where sent_id=? and company_id is ?').all(id,q.cid);for(const attachment of attachments){try{fs.unlinkSync(attachment.path)}catch{}db.prepare('delete from attachments where id=?').run(attachment.id)}db.prepare("delete from sent where id=? and company_id is ? and status='draft'").run(id,q.cid);s.json({ok:1})});
+// tracking
+app.get('/api/track/open/:id',(q,s)=>{const sid=Number(q.params.id);db.prepare('insert into email_events(sent_id,event_type,ip,user_agent) values(?,?,?,?)').run(sid,'open',q.ip,q.get('User-Agent')||'');
+ s.type('image/gif');s.send(Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7','base64'))});
+app.get('/api/track/click/:id',(q,s)=>{const sid=Number(q.params.id);db.prepare('insert into email_events(sent_id,event_type,ip,user_agent) values(?,?,?,?)').run(sid,'click',q.ip,q.get('User-Agent')||'');
+ const url=q.query.url||'/';s.redirect(url)});
+app.get('/api/track/events/:sentId',auth(),(q,s)=>s.json(db.prepare('select * from email_events where sent_id=? order by event_at desc').all(Number(q.params.sentId))));
+app.get('/api/dashboard',auth(),(q,s)=>s.json(dashboardStats(q.cid)));
+app.use((req,res)=>{ if(req.path.startsWith('/api')) return res.status(404).json({error:'Not found'}); if(fs.existsSync(path.join(FRONTEND_DIR,'index.html'))) return res.sendFile(path.join(FRONTEND_DIR,'index.html')); res.status(404).json({error:'Frontend not found'}); });
+module.exports={app,db,dashboardStats};
+if(require.main===module){ app.listen(PORT,()=>console.log(`Backend running at http://localhost:${PORT}`)); }
+

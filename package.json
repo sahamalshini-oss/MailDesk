@@ -1,0 +1,1 @@
+{ "name": "maildesk", "private": true, "scripts": { "start": "node backend/server.js", "start:backend": "node backend/server.js" } }
