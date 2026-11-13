@@ -147,12 +147,14 @@ label { display: block; font-size: 12px; color: var(--mut); margin-bottom: 6px; 
 .err { color: var(--ac); font-size: 13px; margin-top: 6px; }
 .ok { color: var(--ac); font-size: 13px; margin-top: 6px; }
 .card { background: rgba(255,255,255,0.42); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); backdrop-filter: blur(2px); }
-.modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(15,23,42,0.48); }
+.modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(15,23,42,0.45); }
 .modal-backdrop[hidden] { display: none; }
-.app-modal { width: min(100%, 420px); padding: 22px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 24px 70px rgba(15,23,42,0.24); }
-.app-modal h2 { margin: 0; font-size: 19px; }
-.app-modal p { margin: 10px 0 20px; color: var(--mut); white-space: pre-wrap; }
-.app-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.app-modal { width: min(100%, 460px); padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 24px 70px rgba(15,23,42,0.24); color: var(--ink); }
+.app-modal h2 { margin: 0; font-size: 18px; }
+.app-modal p { margin: 8px 0 14px; color: var(--mut); white-space: pre-wrap; }
+.app-modal label { margin-top: 8px; }
+.app-modal input, .app-modal textarea { margin-bottom: 4px; }
+.app-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 .app-modal button.danger { background: #2563eb; color: #fff; border-color: #2563eb; }
 .g { display: grid; gap: 18px; grid-template-columns: 1.2fr 0.8fr; }
 @media (max-width: 700px) { .g, .send-address-row { grid-template-columns: 1fr; } }
@@ -354,6 +356,12 @@ iframe { width: 100%; height: 320px; border: 1px solid var(--line); border-radiu
 .track-click { background: #eef4ff; color: #2563eb; border: 1px solid #d5e6ff; }
 .track-bounce { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 .track-failed { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.track-reply { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
+.follow-due { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+.follow-done { background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
+.follow-overdue { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+.follow-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.follow-actions button { padding: 4px 8px; font-size: 11px; }
 .login { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
 .login .card { width: 100%; max-width: 400px; padding: 32px; }
 .login .brand { text-align: center; margin-bottom: 26px; }
@@ -449,7 +457,7 @@ document.getElementById('loginForm').onsubmit = async e => {
 };
 
 const TABS = { send: 'Send', drafts: 'Drafts', tpl: 'Templates', snd: 'Senders', recipients: 'Recipients', usr: 'Users', co: 'Companies', trk: 'Tracking', log: 'Sent log' };
-const DESC = { send: 'Compose and send emails', drafts: 'Continue working on saved emails', tpl: 'Manage email templates', snd: 'Configure sender accounts', recipients: 'Manage contacts and recipient groups', usr: 'Manage team users', co: 'Manage companies', trk: 'Email tracking events', log: 'View sent email log' };
+const DESC = { send: 'Compose and send emails', drafts: 'Continue working on saved emails', tpl: 'Manage email templates', snd: 'Configure sender accounts', recipients: 'Manage contacts and recipient groups', usr: 'Manage team users', co: 'Manage companies', trk: 'Track opens, clicks, replies and follow-ups', log: 'View sent emails, replies and follow-ups' };
 
 const COMPANY_THEMES = { '1': 'theme-4', '2': 'theme-2', '3': 'theme-3' };
 function applyTheme(cid) {
@@ -507,20 +515,63 @@ async function refreshCompanyPicker() {
   renderCompanyPicker(cs);
 }
 
-async function showDialog(title, text, okCancel) {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-backdrop';
-  overlay.innerHTML = `<div class="app-modal"><h2>${esc(title)}</h2><p>${esc(text)}</p><div class="app-modal-actions"><button class="secondary" id="dl-cancel">Cancel</button><button class="p" id="dl-ok">OK</button></div></div>`;
-  document.body.appendChild(overlay);
-  if (!okCancel) { overlay.querySelector('#dl-cancel').hidden = true; overlay.querySelector('#dl-ok').textContent = 'Got it'; }
+function showDialog(title, text, okCancel) {
   return new Promise(resolve => {
-    overlay.querySelector('#dl-ok').onclick = () => { overlay.remove(); resolve(true); };
-    overlay.querySelector('#dl-cancel').onclick = () => { overlay.remove(); resolve(false); };
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-backdrop';
+    overlay.innerHTML = `<div class="app-modal" role="dialog" aria-modal="true"><h2>${esc(title || '')}</h2>${text ? `<p>${esc(text)}</p>` : ''}<div class="app-modal-actions">${okCancel ? '<button class="secondary" data-cancel>Cancel</button>' : ''}<button class="p" data-ok>OK</button></div></div>`;
+    const close = v => { overlay.remove(); resolve(v); };
+    overlay.querySelector('[data-ok]').onclick = () => close(true);
+    const cancel = overlay.querySelector('[data-cancel]');
+    if (cancel) cancel.onclick = () => close(false);
+    overlay.onclick = e => { if (e.target === overlay) close(!!cancel ? false : true); };
+    document.body.appendChild(overlay);
+    overlay.querySelector('[data-ok]').focus();
   });
 }
 
-async function boot() {
+function showFormDialog(title, fields) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-backdrop';
+    const body = fields.map(f => `<label for="dlg-${f.name}">${esc(f.label)}</label>${f.type === 'textarea' ? `<textarea id="dlg-${f.name}" rows="3" placeholder="${esc(f.placeholder||'')}">${esc(f.value||'')}</textarea>` : `<input id="dlg-${f.name}" type="${f.type||'text'}" value="${esc(f.value||'')}" placeholder="${esc(f.placeholder||'')}">`}`).join('');
+    overlay.innerHTML = `<div class="app-modal" role="dialog" aria-modal="true"><h2>${esc(title||'')}</h2><div>${body}</div><div class="app-modal-actions"><button class="secondary" data-cancel>Cancel</button><button class="p" data-ok>OK</button></div></div>`;
+    const close = v => { overlay.remove(); resolve(v); };
+    overlay.querySelector('[data-ok]').onclick = () => {
+      const out = {};
+      fields.forEach(f => { out[f.name] = (overlay.querySelector('#dlg-' + f.name) || {}).value ?? ''; });
+      close(out);
+    };
+    overlay.querySelector('[data-cancel]').onclick = () => close(null);
+    overlay.onclick = e => { if (e.target === overlay) close(null); };
+    document.body.appendChild(overlay);
+    const first = overlay.querySelector('input,textarea,button'); if (first) first.focus();
+  });
+}
+
+let followUpTimer;
+async function checkFollowUpReminders() {
   if (!T) return;
+  try {
+    const items = await api('/api/sent');
+    const now = Date.now();
+    const due = items.find(x => x.follow_up_at && !x.replied_at && !x.follow_up_done_at && !localStorage['fu_seen_' + x.id + '_' + x.follow_up_at] && !Number.isNaN(new Date(x.follow_up_at).getTime()) && new Date(x.follow_up_at).getTime() <= now);
+    if (!due) return;
+    localStorage['fu_seen_' + due.id + '_' + due.follow_up_at] = '1';
+    const msg = `To: ${due.to_list || ''}\nSubject: ${due.subject || ''}\nDue: ${String(due.follow_up_at).replace('T', ' ')}${due.follow_up_note ? '\nNote: ' + due.follow_up_note : ''}`;
+    const open = await showDialog('Follow-up reminder', msg + '\n\nOpen Tracking to manage this follow-up?', true);
+    if (open) go('trk');
+  } catch {}
+}
+function startFollowUpReminders() {
+  if (followUpTimer) clearInterval(followUpTimer);
+  if (!T) return;
+  checkFollowUpReminders();
+  followUpTimer = setInterval(checkFollowUpReminders, 30000);
+}
+
+async function boot() {
+  if (!T) { if (followUpTimer) clearInterval(followUpTimer); return; }
   $('#uchip').textContent = (sessionStorage.email || '') + ' (' + R + ')';
   const tabs = ['send', 'drafts', 'tpl', 'snd', 'recipients', ...(R !== 'user' ? ['usr'] : []), ...(R === 'super' ? ['co'] : []), 'trk', 'log'];
   $('#nav').innerHTML = tabs.map(t => `<button data-t="${t}" ${cur === t ? 'class="on"' : ''}>${t === 'snd' && R === 'user' ? 'My senders' : TABS[t]}</button>`).join(' ');
@@ -541,6 +592,7 @@ async function boot() {
   }
   const h = location.hash.slice(1);
   go(tabs.includes(h) ? h : 'send');
+  startFollowUpReminders();
 }
 
 function go(t) {
@@ -614,6 +666,13 @@ async function send() {
                 <input type="datetime-local" id="sch">
                 <button class="secondary" id="schClear">Clear</button>
               </div>
+              <div class="schedule-row">
+                <label>Follow-up reminder</label>
+                <input type="datetime-local" id="followAt">
+                <button class="secondary" id="followClear">Clear</button>
+              </div>
+              <label style="margin-top:12px;">Follow-up note (optional)</label>
+              <input id="followNote" type="text" placeholder="e.g. Call if no reply / send quote follow-up">
               <label style="margin-top:12px;">Attachments</label>
               <input type="file" id="atch" multiple>
               <div id="atchList" style="margin-top:6px;font-size:12px;color:var(--mut);"></div>
@@ -751,6 +810,8 @@ async function send() {
     document.querySelectorAll('#tflds [data-fld]').forEach(field => { if (values[field.dataset.fld] !== undefined) field.value = values[field.dataset.fld]; });
     $('#cc').value = savedDraft.cc_list || '';
     $('#sch').value = savedDraft.scheduled_at || '';
+    $('#followAt').value = savedDraft.follow_up_at || '';
+    $('#followNote').value = savedDraft.follow_up_note || '';
     sendRenderPreview();
   }
   sessionStorage.removeItem('composeTemplateId');
@@ -804,6 +865,7 @@ async function send() {
   $('#radd').onclick = () => { const v = $('#rto').value.trim(); if (v) { addPill(v); $('#rto').value = ''; } };
   $('#rto').onkeypress = ev => { if (ev.key === 'Enter') { $('#radd').click(); } };
   $('#schClear').onclick = () => { $('#sch').value = ''; };
+  $('#followClear').onclick = () => { $('#followAt').value = ''; };
   $('#phIns').onclick = () => { const v = $('#ph').value; if (v && quill) { quill.insertText(quill.getSelection()?.index || quill.getLength(), v); quill.focus(); } };
   const dragTo = sessionStorage.dragTo;
   if (dragTo) { sessionStorage.removeItem('dragTo'); addPill(dragTo); }
@@ -822,8 +884,10 @@ async function send() {
     $('#msg').textContent = isDraft ? 'Saving draft…' : 'Sending…';
     try {
       const sch = $('#sch').value || null;
+      const follow_up_at = $('#followAt').value || null;
+      const follow_up_note = $('#followNote').value.trim() || null;
       if (isDraft) {
-        const body = { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, scheduled_at: sch, subject: rawSubject, html: rawHtml, attachment_ids: attachmentIds };
+        const body = { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, scheduled_at: sch, follow_up_at, follow_up_note, subject: rawSubject, html: rawHtml, attachment_ids: attachmentIds };
         const id = sessionStorage.editDraftId;
         if (id) await api('/api/drafts/' + id, { m: 'PUT', b: body });
         else await api('/api/send', { b: { ...body, draft: 1 } });
@@ -832,7 +896,7 @@ async function send() {
         go('drafts');
         return;
       }
-      const r = await api('/api/send', { b: { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, draft: 0, scheduled_at: sch, subject, html, attachment_ids: attachmentIds } });
+      const r = await api('/api/send', { b: { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, draft: 0, scheduled_at: sch, follow_up_at, follow_up_note, subject, html, attachment_ids: attachmentIds } });
       const draftId = sessionStorage.editDraftId;
       if (draftId && r.status === 'sent') { await api('/api/drafts/' + draftId, { m: 'DELETE' }); sessionStorage.removeItem('editDraftId'); }
       $('#msg').innerHTML = `<span class="ok">${isDraft ? 'Draft saved' : 'Email sent'} (${r.status})</span>`;
@@ -1240,15 +1304,53 @@ async function drafts() {
 // ---------- SENT LOG ----------
 async function log() {
   const l = (await api('/api/sent')).filter(item => item.status !== 'draft');
+  const now = Date.now();
+  const followBadge = x => {
+    if (x.replied_at) return '<span class="badge ok">Replied</span>';
+    if (x.follow_up_done_at) return '<span class="badge follow-done">Follow-up done</span>';
+    if (!x.follow_up_at) return '<span class="badge">No follow-up</span>';
+    const due = new Date(x.follow_up_at).getTime();
+    if (!Number.isNaN(due) && due < now) return `<span class="badge follow-overdue">Overdue ${esc(x.follow_up_at.replace('T',' '))}</span>`;
+    return `<span class="badge follow-due">Due ${esc(x.follow_up_at.replace('T',' '))}</span>`;
+  };
   $('#m').innerHTML = `
     <div class="card">
-      <h3 style="margin:0 0 12px 0;font-size:17px">Sent log</h3>
+      <h3 style="margin:0 0 12px 0;font-size:17px">Sent log & follow-ups</h3>
       <table>
-        <thead><tr><th>When<th>To<th>Subject<th>Status<th>Error</th></thead>
-        <tbody>${l.map(x => `<tr><td>${esc(x.at)}<td>${esc(x.to_list)}<td>${esc(x.subject)}<td><span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${x.status}${x.scheduled_at ? ' · scheduled' : ''}</span><td>${x.error ? esc(x.error) : '—'}</tr>`).join('')}</tbody>
+        <thead><tr><th>When<th>To<th>Subject<th>Status<th>Tracking<th>Follow-up<th>Actions</th></thead>
+        <tbody>${l.map(x => `<tr>
+          <td>${esc(x.at)}<td>${esc(x.to_list)}<td>${esc(x.subject)}
+          <td><span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${esc(x.status)}</span>
+          <td>${x.opens || 0} opens · ${x.clicks || 0} clicks · ${x.replies || 0} replies${x.replied_at ? `<div class="small">Replied: ${esc(String(x.replied_at).replace('T',' ').slice(0,16))}</div>` : ''}
+          <td>${followBadge(x)}${x.follow_up_note ? `<div class="small">${esc(x.follow_up_note)}</div>` : ''}
+          <td><div class="follow-actions"><button class="secondary" data-follow="${x.id}" data-at="${esc(x.follow_up_at||'')}" data-note="${esc(x.follow_up_note||'')}">Set follow-up</button><button class="secondary" data-reply="${x.id}">Mark replied</button>${x.follow_up_at && !x.follow_up_done_at && !x.replied_at ? `<button data-done="${x.id}">Done</button>` : ''}</div>
+        </tr>`).join('')}</tbody>
       </table>
       ${l.length ? '' : '<p class="empty">No sent emails.</p>'}
     </div>`;
+  $('#m').onclick = async e => {
+    const b = e.target.closest('button'); if (!b) return;
+    try {
+      if (b.dataset.follow) {
+        const form = await showFormDialog('Set follow-up', [
+          { name: 'at', label: 'Follow-up date/time', type: 'datetime-local', value: b.dataset.at || '' },
+          { name: 'note', label: 'Follow-up note (optional)', type: 'text', value: b.dataset.note || '' }
+        ]);
+        if (!form) return;
+        await api('/api/campaign-recipients/' + b.dataset.follow + '/follow-up', { m: 'PUT', b: { follow_up_at: (form.at || '').trim() || null, follow_up_note: (form.note || '').trim(), clear_done: !(form.at || '').trim() } });
+        return log();
+      }
+      if (b.dataset.done) { await api('/api/campaign-recipients/' + b.dataset.done + '/follow-up', { m: 'PUT', b: { done: 1 } }); return log(); }
+      if (b.dataset.reply) {
+        const form = await showFormDialog('Mark replied', [
+          { name: 'note', label: 'Reply note (optional)', type: 'text', value: '' }
+        ]);
+        if (!form) return;
+        await api('/api/campaign-recipients/' + b.dataset.reply + '/reply', { b: { note: (form.note || '').trim() } });
+        return log();
+      }
+    } catch (err) { await showDialog('Could not update follow-up', err.message); }
+  };
 }
 
 // ---------- TRACKING ----------
@@ -1256,18 +1358,52 @@ async function trk() {
   const l = await api('/api/sent');
   $('#m').innerHTML = `
     <div class="card">
-      <h3 style="margin:0 0 12px 0;font-size:17px">Tracking events</h3>
+      <h3 style="margin:0 0 12px 0;font-size:17px">Tracking, replies & follow-ups</h3>
       <table>
-        <thead><tr><th>When<th>Email<th>Event<th>IP<th>User agent</th></thead>
+        <thead><tr><th>When<th>To<th>Subject<th>Events<th>Follow-up<th>Actions</th></thead>
         <tbody id="trk-body"></tbody>
       </table>
     </div>`;
+  $('#m').onclick = async e => {
+    const b = e.target.closest('button'); if (!b) return;
+    try {
+      if (b.dataset.follow) {
+        const form = await showFormDialog('Set follow-up', [
+          { name: 'at', label: 'Follow-up date/time', type: 'datetime-local', value: b.dataset.at || '' },
+          { name: 'note', label: 'Follow-up note (optional)', type: 'text', value: b.dataset.note || '' }
+        ]);
+        if (!form) return;
+        await api('/api/campaign-recipients/' + b.dataset.follow + '/follow-up', { m: 'PUT', b: { follow_up_at: (form.at || '').trim() || null, follow_up_note: (form.note || '').trim(), clear_done: !(form.at || '').trim() } });
+        return trk();
+      }
+      if (b.dataset.done) { await api('/api/campaign-recipients/' + b.dataset.done + '/follow-up', { m: 'PUT', b: { done: 1 } }); return trk(); }
+      if (b.dataset.reply) {
+        const form = await showFormDialog('Mark replied', [
+          { name: 'note', label: 'Reply note (optional)', type: 'text', value: '' }
+        ]);
+        if (!form) return;
+        await api('/api/campaign-recipients/' + b.dataset.reply + '/reply', { b: { note: (form.note || '').trim() } });
+        return trk();
+      }
+    } catch (err) { await showDialog('Could not update tracking', err.message); }
+  };
   const body = $('#trk-body');
-  if (!l.length) { body.innerHTML = '<tr><td colspan="5" class="empty">No sent emails yet.</td></tr>'; return; }
+  if (!l.length) { body.innerHTML = '<tr><td colspan="6" class="empty">No sent emails yet.</td></tr>'; return; }
+  const now = Date.now();
   for (const x of l) {
     const evs = await api(`/api/track/events/${x.id}`).catch(() => []);
-    const rows = evs.map(e => `<tr><td class="tracking-table">${esc(x.at)}<td class="tracking-table">${esc(x.subject)}<td><span class="tracking-badge track-${e.event_type}">${e.event_type}</span><td class="tracking-table">${esc(e.ip)}<td class="tracking-table">${esc(e.user_agent || '-')}</tr>`).join('');
-    body.innerHTML += `<tr><td colspan="5"><div class="card" style="padding:10px;margin-top:8px;"><strong>${esc(x.subject)}</strong> (${x.status})${rows}</div></td></tr>`;
+    const events = evs.map(e => `<span class="tracking-badge track-${esc(e.event_type)}">${esc(e.event_type)}</span> <span class="small">${esc(String(e.event_at||'').replace('T',' ').slice(0,16))}</span>`).join('<br>') || '<span class="small">No events yet</span>';
+    const replied = x.replied_at || evs.some(e => e.event_type === 'reply');
+    const due = x.follow_up_at ? new Date(x.follow_up_at).getTime() : NaN;
+    const follow = replied ? `<span class="badge ok">Replied</span>` : x.follow_up_done_at ? `<span class="badge follow-done">Done</span>` : x.follow_up_at ? `<span class="badge ${!Number.isNaN(due)&&due<now?'follow-overdue':'follow-due'}">${!Number.isNaN(due)&&due<now?'Overdue':'Due'} ${esc(x.follow_up_at.replace('T',' '))}</span>` : '<span class="badge">No follow-up</span>';
+    body.innerHTML += `<tr>
+      <td class="tracking-table">${esc(x.at)}
+      <td class="tracking-table">${esc(x.to_list)}
+      <td class="tracking-table">${esc(x.subject)}
+      <td class="tracking-table">${events}
+      <td class="tracking-table">${follow}${x.follow_up_note ? `<div class="small">${esc(x.follow_up_note)}</div>` : ''}
+      <td class="tracking-table"><div class="follow-actions"><button class="secondary" data-follow="${x.id}" data-at="${esc(x.follow_up_at||'')}" data-note="${esc(x.follow_up_note||'')}">Set follow-up</button><button class="secondary" data-reply="${x.id}">Mark replied</button>${x.follow_up_at && !x.follow_up_done_at && !replied ? `<button data-done="${x.id}">Done</button>` : ''}</div>
+    </tr>`;
   }
 }
 
