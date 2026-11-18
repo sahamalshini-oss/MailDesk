@@ -199,7 +199,7 @@ tbody tr:hover { background: #f8fbff; }
   100% { transform: scale(1) rotate(0deg); }
 }
 .company-logo-btn.animating { animation: logoPop 0.7s cubic-bezier(.34,1.56,.64,1); }
-.user-chip { font-size: 13px; color: var(--mut); background: rgba(255,255,255,0.8); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; }
+.user-chip { font-size: 13px; color: var(--mut); background: rgba(255,255,255,0.8); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; display: inline-block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
 .dashboard { display: flex; flex-direction: column; gap: 18px; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
 .stat-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; box-shadow: none; min-height: 0; }
@@ -226,7 +226,8 @@ tbody tr:hover { background: #f8fbff; }
 .send-address-row { display: grid; grid-template-columns: minmax(160px, 220px) minmax(180px, 1fr); align-items: end; gap: 10px; padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: none; }
 .send-address-row label { margin-bottom: 4px; }
 .send-to-entry { display: flex; align-items: center; gap: 6px; }
-.send-to-entry input { min-width: 0; }
+.send-to-entry input { min-width: 0; color: #0f172a; background: #fff; -webkit-text-fill-color: #0f172a; }
+.send-to-entry input::placeholder { color: #6b7280; -webkit-text-fill-color: #6b7280; opacity: 1; }
 .send-to-entry button { flex: 0 0 auto; }
 @media (max-width: 900px) { .send-grid { grid-template-columns: 1fr; } }
 .compose-col { display: flex; flex-direction: column; gap: 14px; }
@@ -235,10 +236,24 @@ tbody tr:hover { background: #f8fbff; }
 .send-preview-subject { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.55); }
 .send-preview-subject strong { color: var(--mut); font-size: 11px; text-transform: uppercase; }
 .send-preview-subject span { overflow-wrap: anywhere; }
-.recipients-card { padding: 10px 18px 18px; background: linear-gradient(135deg, rgba(16,77,169,0.45) 0%, rgba(0,0,0,0.45) 100%); border-color: rgba(15,82,186,0.7); color: #000; backdrop-filter: blur(2px); }
-.recipients-card .panel-header h3, .recipients-card label, .recipients-card .small, .recipients-card #rmsg { color: #fff; }
+.recipients-card { padding: 10px 18px 18px; background: linear-gradient(135deg, rgba(16,77,169,0.45) 0%, rgba(0,0,0,0.45) 100%); border-color: rgba(15,82,186,0.7); color: #fff; backdrop-filter: blur(2px); }
+.recipients-card .panel-header h3, .recipients-card label, .recipients-card .small, .recipients-card #rmsg { color: inherit; }
 .recipients-card .panel-header h3 { display: flex; align-items: center; }
 .recipients-card hr { border-top-color: rgba(255,255,255,0.25) !important; }
+.recipients-card input, .recipients-card select, .recipients-card textarea { color: #0f172a !important; background: #fff !important; -webkit-text-fill-color: #0f172a; }
+.recipients-card input::placeholder, .recipients-card textarea::placeholder { color: #6b7280 !important; -webkit-text-fill-color: #6b7280; opacity: 1; }
+.recipients-card select option { color: #0f172a; background: #fff; }
+.recipients-card .recipient-pill { color: #113065; background: #eef4ff; }
+.recipients-card #rpills { color: #113065; }
+body.theme-1 .recipients-card { background: linear-gradient(135deg, rgba(17,48,101,0.45) 0%, rgba(10,27,51,0.45) 100%); border-color: rgba(17,48,101,0.7); color: #fff; }
+body.theme-1 .recipients-card .recipient-pill { color: #113065; background: #e5ecf6; border-color: #bcd2f1; }
+body.theme-2 .recipients-card { background: linear-gradient(135deg, rgba(21,128,61,0.45) 0%, rgba(13,44,29,0.45) 100%); border-color: rgba(21,128,61,0.7); color: #fff; }
+body.theme-2 .recipients-card .recipient-pill { color: #15803d; background: #e7f4e7; border-color: #bbdfbb; }
+body.theme-3 .recipients-card { background: linear-gradient(135deg, rgba(0,0,128,0.42) 0%, rgba(0,0,64,0.45) 100%); border-color: rgba(0,0,128,0.65); color: #fff; }
+body.theme-3 .recipients-card .panel-header h3, body.theme-3 .recipients-card label, body.theme-3 .recipients-card .small, body.theme-3 .recipients-card #rmsg { color: #fff !important; }
+body.theme-3 .recipients-card .recipient-pill { color: #000080; background: #e9eaee; border-color: #c7c9cf; }
+body.theme-4 .recipients-card { background: linear-gradient(135deg, rgba(31,111,139,0.42) 0%, rgba(30,40,98,0.45) 100%); border-color: rgba(31,111,139,0.7); color: #fff; }
+body.theme-4 .recipients-card .recipient-pill { color: #1e2862; background: #eef8fb; border-color: #bfe0f0; }
   .activity-card { padding: 10px 18px 18px; background: rgba(37,99,235,0.4); border: 1px solid rgba(29,78,216,0.7); color: navy; display: flex; flex-direction: column; max-height: 420px; overflow: hidden; backdrop-filter: blur(2px); }
   .activity-card .panel-header { background: transparent; flex: 0 0 auto; padding-bottom: 8px; }
   .activity-card .activity-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; border: 1px solid rgba(0,0,128,0.18); border-radius: 10px; background: rgba(255,255,255,0.1); scrollbar-gutter: stable; }
@@ -371,11 +386,43 @@ iframe { width: 100%; height: 320px; border: 1px solid var(--line); border-radiu
 .track-bounce { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 .track-failed { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 .track-reply { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
+.track-followup { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
 .follow-due { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
 .follow-done { background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
 .follow-overdue { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+.follow-error { color: #b91c1c; }
 .follow-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-.follow-actions button { padding: 4px 8px; font-size: 11px; }
+.follow-actions button { padding: 4px 8px; font-size: 11px; background: #fff; color: var(--ink); border-color: var(--line); }
+.follow-actions button:hover { background: #f8fbff; }
+.follow-actions button.btn-follow { background: #dc2626; color: #fff; border-color: #dc2626; }
+.follow-actions button.btn-follow:hover { background: #b91c1c; }
+.follow-actions button.btn-done { background: #0284c7; color: #fff; border-color: #0284c7; }
+.follow-actions button.btn-done:hover { background: #0369a1; }
+.follow-actions button.btn-snooze { background: #111827; color: #fff; border-color: #111827; }
+.follow-actions button.btn-snooze:hover { background: #000; }
+/* Tracking */
+.trk-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.trk-stats .stat-card { padding: 18px 20px; border-radius: 14px; background: var(--panel); box-shadow: var(--shadow); }
+.trk-stats .stat-top { font-size: 11px; }
+.trk-stats .stat-value { font-size: 30px; margin-top: 8px; }
+.trk-panel { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.trk-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.trk-table th { font-size: 11px; padding: 9px 10px; background: #f8fbff; border-bottom: 1px solid var(--line); white-space: nowrap; text-align: left; color: var(--mut); }
+.trk-table td { font-size: 12px; padding: 10px; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.trk-table tbody tr:last-child td { border-bottom: none; }
+.trk-table tbody tr:hover { background: #f8fbff; }
+.trk-table th:nth-child(1), .trk-table td:nth-child(1) { width: 23%; }
+.trk-table th:nth-child(2), .trk-table td:nth-child(2) { width: 27%; }
+.trk-table th:nth-child(3), .trk-table td:nth-child(3) { width: 15%; }
+.trk-table th:nth-child(4), .trk-table td:nth-child(4) { width: 19%; }
+.trk-table th:nth-child(5), .trk-table td:nth-child(5) { width: 16%; }
+.trk-to { font-weight: 700; color: var(--ink); }
+.trk-sub { display: block; margin-top: 3px; color: var(--mut); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trk-table .trk-subj { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trk-eng { color: var(--mut); font-size: 11px; line-height: 1.55; }
+.trk-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
+.trk-pager button { padding: 8px 20px; font-size: 13px; }
+.trk-pager button[disabled] { opacity: .45; cursor: default; }
 .login { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
 .login .card { width: 100%; max-width: 400px; padding: 32px; }
 .login .brand { text-align: center; margin-bottom: 26px; }
@@ -432,8 +479,17 @@ iframe { width: 100%; height: 320px; border: 1px solid var(--line); border-radiu
 
 <script src="quill.min.js"></script>
 <script src="papaparse.min.js"></script>
+<script src="purify.min.js"></script>
 <script>
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const toLocalInput = v => {
+  if (!v) return '';
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return '';
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+const sanitizeHtml = (html) => window.DOMPurify ? DOMPurify.sanitize(html, { ALLOWED_TAGS: ['p','br','b','i','u','strike','strong','em','a','img','ul','ol','li','h1','h2','h3','h4','h5','h6','blockquote','pre','code','span','div','table','thead','tbody','tr','th','td','hr'], ALLOWED_ATTR: ['href','target','rel','src','alt','width','height','style','class','data-fld','data-preview-field','data-rem','data-atch','data-cid','data-cname','data-t','data-use','data-e','data-d','data-f','data-rp','data-edit','data-cancel','data-name','data-edit-form','data-group-add','data-group-email','data-rm','data-g','data-open-draft','data-delete-draft','data-follow','data-at','data-note','data-reply','data-done'] }) : html;
 const emailFontWhitelist = ['sans-serif', 'serif', 'monospace', 'arial', 'calibri', 'georgia', 'verdana', 'times-new-roman', 'courier-new'];
 const emailFontFamilies = { arial: 'Arial, Helvetica, sans-serif', calibri: 'Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif', georgia: 'Georgia, serif', verdana: 'Verdana, Geneva, sans-serif', 'times-new-roman': '"Times New Roman", Times, serif', 'courier-new': '"Courier New", Courier, monospace', 'sans-serif': 'Arial, Helvetica, sans-serif', serif: 'Georgia, serif', monospace: '"Courier New", Courier, monospace' };
 const emailSizeWhitelist = ['10px','12px','14px','16px','18px','20px','24px','28px','32px'];
@@ -471,22 +527,83 @@ const inlineEmailFonts = html => String(html || '').replace(/class="([^"]*\bql-f
 }).replace(/(<[^>]+)style="font-family:([^"]+);"([^>]*style=")([^"]*")/gi, '$1$3font-family:$2;$4');
 const getEditorHtml = q => inlineEmailFonts(q ? q.root.innerHTML : '');
 let T = sessionStorage.t || '', R = sessionStorage.r || '', CO = sessionStorage.cid || '', cur = 'send';
+let quill = null;
+let tquill = null;
 const $ = s => document.querySelector(s);
 const LOGIN = $('#login'), APP = $('#app');
 
+function destroyQuill(q) {
+  if (!q) return;
+  try {
+    if (q.root && q.root.__quillObserver) {
+      q.root.__quillObserver.disconnect();
+    }
+    q.root.innerHTML = '';
+  } catch {}
+}
+
 const api = async (p, o = {}) => {
   const u = p + (CO && !p.includes('company_id=') ? (p.includes('?') ? '&' : '?') + 'company_id=' + CO : '');
-  const r = await fetch(u, {
-    method: o.m || (o.b ? 'POST' : 'GET'),
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + T },
-    body: o.b && JSON.stringify(o.b)
-  });
+  let r;
+  try {
+    r = await fetch(u, {
+      method: o.method || o.m || (o.b ? 'POST' : 'GET'),
+      headers: { 'Content-Type': 'application/json', ...(T ? { Authorization: 'Bearer ' + T } : {}) },
+      body: o.b && JSON.stringify(o.b)
+    });
+  } catch {
+    throw Error('Cannot reach server. Check that the backend is running.');
+  }
   if (r.status === 401) { logout(); throw Error('Signed out'); }
+  if (r.status === 403) {
+    const j = await r.json().catch(() => ({}));
+    const method = String(o.method || o.m || (o.b ? 'POST' : 'GET')).toUpperCase();
+    const canAutoRetry = method === 'GET' || method === 'HEAD';
+    if (canAutoRetry && (j.error?.includes('Company access') || j.error?.includes('Invalid company'))) {
+      CO = '';
+      sessionStorage.cid = '';
+      sessionStorage.cname = '';
+      const cs = await refreshCompanyPicker();
+      const hasCompany = Array.isArray(cs) && cs.length > 0 && CO;
+      if (!hasCompany) {
+        if (R !== 'super') {
+          if (followUpTimer) clearInterval(followUpTimer);
+          followUpTimer = null;
+          followUpFailures = 0;
+          sessionStorage.clear();
+          T = R = CO = '';
+          LOGIN.style.display = 'flex';
+          APP.style.display = 'none';
+          $('#lerr').textContent = j.error || 'No company access. Contact an administrator.';
+        }
+        throw Error(j.error || 'No company access. Contact an administrator.');
+      }
+      const retryUrl = p + (CO && !p.includes('company_id=') ? (p.includes('?') ? '&' : '?') + 'company_id=' + CO : '');
+      let retry;
+      try {
+        retry = await fetch(retryUrl, {
+          method: o.method || o.m || (o.b ? 'POST' : 'GET'),
+          headers: { 'Content-Type': 'application/json', ...(T ? { Authorization: 'Bearer ' + T } : {}) },
+          body: o.b && JSON.stringify(o.b)
+        });
+      } catch {
+        throw Error('Cannot reach server. Check that the backend is running.');
+      }
+      if (retry.status === 401) { logout(); throw Error('Signed out'); }
+      const retryJson = await retry.json().catch(() => ({}));
+      if (!retry.ok) throw Error(retryJson.error || `Request failed (${retry.status}): ${p}`);
+      return retryJson;
+    }
+    if (j.error?.includes('Company access') || j.error?.includes('Invalid company')) {
+      throw Error(j.error + ' Company was not changed.');
+    }
+    throw Error(j.error || 'Access denied (403). Your role may not allow this action.');
+  }
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw Error(j.error || r.statusText);
   return j;
 };
-const logout = () => { sessionStorage.clear(); T = R = ''; LOGIN.style.display = 'flex'; APP.style.display = 'none'; boot(); };
+const logout = async () => { if (T) { try { await fetch('/api/logout', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + T } }); } catch {} } if (followUpTimer) clearInterval(followUpTimer); followUpTimer = null; followUpFailures = 0; sessionStorage.clear(); T = R = CO = ''; LOGIN.style.display = 'flex'; APP.style.display = 'none'; };
 
 document.getElementById('loginForm').onsubmit = async e => {
   e.preventDefault();
@@ -517,6 +634,7 @@ function applyTheme(cid) {
   document.body.style.setProperty('--company-logo', logo ? `url("${encodeURI(logo)}")` : 'none');
 }
 const COMPANY_LOGOS = {
+  'Greek Lanka Maritime Services': '/uploads/GLMS - LOGO-01 (1).png',
   'GreekLanka Maritime Solutions': '/uploads/GLMS - LOGO-01 (1).png',
   'OCEANIC SHIP CHANDLERS (PVT) LTD': '/uploads/OCEANIC SHIP CHANDLERS LOGO Final (2).png',
   'Navigator Crew Managment (PVT)LTD': '/uploads/Navigator_logo.jpg__2___1_-removebg-preview.png',
@@ -558,11 +676,16 @@ function renderCompanyPicker(companies) {
 }
 
 async function refreshCompanyPicker() {
-  if (R !== 'super') return;
-  const cs = await api('/api/companies');
-  if (!cs.find(c => String(c.id) === CO)) { CO = String(cs[0]?.id || ''); sessionStorage.cid = CO; sessionStorage.cname = cs[0]?.name || ''; }
+  let cs = [];
+  try { cs = await api('/api/me/companies'); } catch { return; }
+  if (!cs.find(c => String(c.id) === CO)) {
+    CO = String(cs[0]?.id || '');
+    sessionStorage.cid = CO;
+    sessionStorage.cname = cs[0]?.name || '';
+  }
   applyTheme(CO);
   renderCompanyPicker(cs);
+  return cs;
 }
 
 function showDialog(title, text, okCancel) {
@@ -599,11 +722,13 @@ function showFormDialog(title, fields) {
   });
 }
 
-let followUpTimer;
+let followUpTimer, followUpFailures = 0;
 async function checkFollowUpReminders() {
-  if (!T) return;
+  if (!T) { if (followUpTimer) clearInterval(followUpTimer); return; }
   try {
     const items = await api('/api/sent');
+    followUpFailures = 0;
+    if (!Array.isArray(items)) return;
     const now = Date.now();
     const due = items.find(x => x.follow_up_at && !x.replied_at && !x.follow_up_done_at && !localStorage['fu_seen_' + x.id + '_' + x.follow_up_at] && !Number.isNaN(new Date(x.follow_up_at).getTime()) && new Date(x.follow_up_at).getTime() <= now);
     if (!due) return;
@@ -611,42 +736,63 @@ async function checkFollowUpReminders() {
     const msg = `To: ${due.to_list || ''}\nSubject: ${due.subject || ''}\nDue: ${String(due.follow_up_at).replace('T', ' ')}${due.follow_up_note ? '\nNote: ' + due.follow_up_note : ''}`;
     const open = await showDialog('Follow-up reminder', msg + '\n\nOpen Tracking to manage this follow-up?', true);
     if (open) go('trk');
-  } catch {}
+  } catch (e) {
+    followUpFailures += 1;
+    if (/Cannot reach server/i.test(e?.message || '') && followUpFailures >= 3 && followUpTimer) {
+      clearInterval(followUpTimer);
+      followUpTimer = null;
+    }
+  }
 }
 function startFollowUpReminders() {
   if (followUpTimer) clearInterval(followUpTimer);
+  followUpFailures = 0;
   if (!T) return;
   checkFollowUpReminders();
   followUpTimer = setInterval(checkFollowUpReminders, 30000);
 }
 
 async function boot() {
-  if (!T) { if (followUpTimer) clearInterval(followUpTimer); return; }
+  if (!T) { if (followUpTimer) clearInterval(followUpTimer); LOGIN.style.display = 'flex'; APP.style.display = 'none'; return; }
   $('#uchip').textContent = (sessionStorage.email || '') + ' (' + R + ')';
   const tabs = ['send', 'drafts', 'tpl', 'snd', 'recipients', ...(R !== 'user' ? ['usr'] : []), ...(R === 'super' ? ['co'] : []), 'trk', 'log'];
   $('#nav').innerHTML = tabs.map(t => `<button data-t="${t}" ${cur === t ? 'class="on"' : ''}>${t === 'snd' && R === 'user' ? 'My senders' : TABS[t]}</button>`).join(' ');
   $('#nav').onclick = e => { const b = e.target.closest('button'); if (b && b.dataset.t) go(b.dataset.t); };
   $('#lout').onclick = logout;
-  if (R === 'super') {
-    $('#copick').style.display = 'inline-flex';
-    const cs = await api('/api/companies');
-    CO = CO || String(cs[0]?.id || '');
-    const current = cs.find(company => String(company.id) === String(CO)) || cs[0];
-    CO = current ? String(current.id) : '';
-    sessionStorage.cid = CO;
-    sessionStorage.cname = current?.name || '';
-    applyTheme(CO);
-    renderCompanyPicker(cs);
-  } else {
-    $('#copick').style.display = 'none';
+  let cs = [];
+  try {
+    cs = await api('/api/me/companies');
+  } catch (e) {
+    if (e.message === 'Signed out') return;
+    LOGIN.style.display = 'flex';
+    APP.style.display = 'none';
+    $('#lerr').textContent = e.message || 'Cannot reach server. Check that the backend is running.';
+    return;
   }
+  $('#copick').style.display = cs.length > 1 ? 'inline-flex' : 'none';
+  if (!cs.length && R !== 'super') {
+    LOGIN.style.display = 'flex';
+    APP.style.display = 'none';
+    $('#lerr').textContent = 'No company access. Contact an administrator.';
+    return;
+  }
+  CO = String((cs.find(company => String(company.id) === String(CO)) || cs[0] || {}).id || CO || '');
+  const current = cs.find(company => String(company.id) === String(CO)) || cs[0] || null;
+  CO = current ? String(current.id) : '';
+  sessionStorage.cid = CO;
+  sessionStorage.cname = current?.name || '';
+  applyTheme(CO);
+  renderCompanyPicker(cs);
   const h = location.hash.slice(1);
   go(tabs.includes(h) ? h : 'send');
   startFollowUpReminders();
 }
 
 function go(t) {
+  if (cur === 'send') destroyQuill(quill);
+  if (cur === 'tpl') destroyQuill(tquill);
   cur = t;
+  if (t === 'trk') trkPage = 1;
   location.hash = t;
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   $('#pagetitle').textContent = 'MailDesk · ' + TABS[t];
@@ -655,19 +801,18 @@ function go(t) {
 }
 
 // ---------- SEND ----------
-let quill = null;
 let recipientPills = [];
 let attachmentIds = [];
 let attachmentItems = [];
 async function send() {
   const draftId = sessionStorage.editDraftId || '';
   const [ts, ss, contacts, st, sent, savedDraft] = await Promise.all([api('/api/templates'), api('/api/senders'), api('/api/contacts'), api('/api/dashboard'), api('/api/sent'), draftId ? api('/api/drafts/' + draftId) : Promise.resolve(null)]);
-  const defaultSender = ss.find(sender => sender.is_personal && sender.is_default) || ss.find(sender => sender.is_default) || ss[0];
+  const defaultSender = ss.find(sender => sender.is_personal && sender.is_default && sender.status === 'active') || ss.find(sender => sender.is_default && sender.status === 'active') || ss.find(sender => sender.is_personal && sender.status === 'active') || ss.find(sender => sender.status === 'active') || ss[0];
   recipientPills = savedDraft ? String(savedDraft.to_list || '').split(',').map(email => email.trim()).filter(Boolean) : [];
   attachmentItems = savedDraft?.attachments || [];
   attachmentIds = savedDraft?.attachment_ids || attachmentItems.map(item => item.id);
   contactsList = contacts;
-  const rows = sent.map(x => `<tr><td>${esc(x.at)}<td>${esc(x.to_list)}<td>${esc(x.subject)}<td><span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${x.status}</span><td>${x.error ? esc(x.error) : '—'}</tr>`).join('');
+  const rows = sent.map(x => `<tr><td>${esc(x.at)}<td>${esc(x.to_list)}<td>${esc(x.subject)}<td><span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${esc(x.status)}</span><td>${x.error ? esc(x.error) : '—'}</tr>`).join('');
   $('#m').innerHTML = `
     <div class="send-page">
       <div class="stats-grid">
@@ -723,6 +868,12 @@ async function send() {
               </div>
               <label style="margin-top:12px;">Follow-up note (optional)</label>
               <input id="followNote" type="text" placeholder="e.g. Call if no reply / send quote follow-up">
+              <div class="schedule-row">
+                <label>Repeat every (days)</label>
+                <input type="number" id="followRepeat" min="1" max="365" value="2" style="width:110px;">
+                <label style="margin-left:8px;">Max (0 = until done)</label>
+                <input type="number" id="followMax" min="0" max="20" value="0" style="width:90px;">
+              </div>
               <label style="margin-top:12px;">Attachments</label>
               <input type="file" id="atch" multiple>
               <div id="atchList" style="margin-top:6px;font-size:12px;color:var(--mut);"></div>
@@ -737,6 +888,8 @@ async function send() {
             <div id="rpills"></div>
             <label for="cc" style="margin-top:12px">CC email addresses</label>
             <input id="cc" type="text" placeholder="colleague@example.com, team@example.com">
+            <label for="bcc" style="margin-top:12px">BCC email addresses</label>
+            <input id="bcc" type="text" placeholder="hidden@example.com, other@example.com">
             <hr style="margin:12px 0;border:none;border-top:1px solid var(--line);">
             <label style="margin-bottom:4px;">Or select from contacts</label>
             <div class="g" style="margin-bottom:10px;">
@@ -791,12 +944,15 @@ async function send() {
   $('#rfill').onclick = async () => {
     const emails = [...rsel.selectedOptions].map(o => o.value);
     const gids = [...rgrp.selectedOptions].map(o => o.value);
-    const res = await api('/api/contacts/resolve', { b: { emails, groupIds: gids } });
-    for (const e of res.emails) addPill(e);
-    $('#rmsg').innerHTML = `<span class="ok">${res.emails.length} recipient(s) added</span>`;
+    if (!emails.length && !gids.length) { $('#rmsg').innerHTML = '<span class="err">Select contacts or groups first</span>'; return; }
+    try {
+      const res = await api('/api/contacts/resolve', { b: { emails, groupIds: gids } });
+      for (const e of (res.emails || [])) addPill(e);
+      $('#rmsg').innerHTML = `<span class="ok">${(res.emails || []).length} recipient(s) added</span>`;
+    } catch (e) { $('#rmsg').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
   };
   // init quill
-  if (quill) quill.root.innerHTML = '';
+  destroyQuill(quill);
   quill = new Quill('#editor', { theme: 'snow', placeholder: 'Compose email body…', modules: { toolbar: emailToolbar } });
   const getValues = () => ({ ...Object.fromEntries([...document.querySelectorAll('#tflds [data-fld]')].map(el => [el.dataset.fld, el.value])), title: $('#send-title').value, company_name: $('#send-company-name').value });
   const fieldLabel = key => key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
@@ -805,7 +961,7 @@ async function send() {
   const prev = () => {
     const t = ts.find(x => x.id == $('#t').value);
     $('#sj').value = t ? (t.subject || '') : '';
-    quill.root.innerHTML = t ? (t.html || '') : '';
+    quill.root.innerHTML = sanitizeHtml(t ? (t.html || '') : '');
     const sender = ss.find(item => String(item.id) === $('#s').value);
     const recipient = recipientPills.length === 1 ? contactsList.find(item => item.email.toLowerCase() === recipientPills[0].toLowerCase()) : null;
     const defaults = {
@@ -826,7 +982,7 @@ async function send() {
   const sendRenderPreview = () => {
     const values = getValues();
     $('#pvsubject').textContent = replaceText($('#sj').value, values) || '(no subject)';
-    $('#pv').srcdoc = replaceHtml(quill.root.innerHTML, values);
+    $('#pv').srcdoc = sanitizeHtml(replaceHtml(quill.root.innerHTML, values));
   };
   $('#t').onchange = prev;
   $('#sj').oninput = sendRenderPreview;
@@ -848,14 +1004,17 @@ async function send() {
   if (savedDraft) {
     const values = savedDraft.values || {};
     $('#sj').value = savedDraft.subject || '';
-    quill.root.innerHTML = savedDraft.draft_html || '';
+    quill.root.innerHTML = sanitizeHtml(savedDraft.draft_html || '');
     $('#send-title').value = values.title || '';
     $('#send-company-name').value = values.company_name ?? sessionStorage.cname ?? '';
     document.querySelectorAll('#tflds [data-fld]').forEach(field => { if (values[field.dataset.fld] !== undefined) field.value = values[field.dataset.fld]; });
     $('#cc').value = savedDraft.cc_list || '';
+    $('#bcc').value = savedDraft.bcc_list || '';
     $('#sch').value = savedDraft.scheduled_at || '';
-    $('#followAt').value = savedDraft.follow_up_at || '';
+    $('#followAt').value = toLocalInput(savedDraft.follow_up_at);
     $('#followNote').value = savedDraft.follow_up_note || '';
+    $('#followRepeat').value = savedDraft.follow_up_repeat_days ?? 2;
+    $('#followMax').value = savedDraft.follow_up_max ?? 0;
     sendRenderPreview();
   }
   sessionStorage.removeItem('composeTemplateId');
@@ -919,6 +1078,8 @@ async function send() {
     if (!isDraft && !to.length) return $('#msg').innerHTML = `<span class="err">Add at least one recipient</span>`;
     const cc = $('#cc').value.split(/[;,\s]+/).filter(Boolean);
     if (!isDraft && cc.some(email => !validEmail(email))) return $('#msg').innerHTML = `<span class="err">Check the CC email addresses</span>`;
+    const bcc = $('#bcc').value.split(/[;,\s]+/).filter(Boolean);
+    if (!isDraft && bcc.some(email => !validEmail(email))) return $('#msg').innerHTML = `<span class="err">Check the BCC email addresses</span>`;
     const values = getValues();
     const rawSubject = $('#sj').value;
     const rawHtml = getHtml();
@@ -930,8 +1091,10 @@ async function send() {
       const sch = $('#sch').value || null;
       const follow_up_at = $('#followAt').value || null;
       const follow_up_note = $('#followNote').value.trim() || null;
+      const follow_up_repeat_days = Math.min(365, Math.max(1, parseInt($('#followRepeat').value, 10) || 2));
+      const follow_up_max = Math.min(20, Math.max(0, parseInt($('#followMax').value, 10) || 0));
       if (isDraft) {
-        const body = { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, scheduled_at: sch, follow_up_at, follow_up_note, subject: rawSubject, html: rawHtml, attachment_ids: attachmentIds };
+        const body = { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, bcc, scheduled_at: sch, follow_up_at, follow_up_note, follow_up_repeat_days, follow_up_max, subject: rawSubject, html: rawHtml, attachment_ids: attachmentIds };
         const id = sessionStorage.editDraftId;
         if (id) await api('/api/drafts/' + id, { m: 'PUT', b: body });
         else await api('/api/send', { b: { ...body, draft: 1 } });
@@ -940,7 +1103,7 @@ async function send() {
         go('drafts');
         return;
       }
-      const r = await api('/api/send', { b: { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, draft: 0, scheduled_at: sch, follow_up_at, follow_up_note, subject, html, attachment_ids: attachmentIds } });
+      const r = await api('/api/send', { b: { template_id: $('#t').value ? +$('#t').value : null, sender_id: $('#s').value || null, values, to, cc, bcc, draft: 0, scheduled_at: sch, follow_up_at, follow_up_note, follow_up_repeat_days, follow_up_max, subject, html, attachment_ids: attachmentIds } });
       const draftId = sessionStorage.editDraftId;
       if (draftId && r.status === 'sent') { await api('/api/drafts/' + draftId, { m: 'DELETE' }); sessionStorage.removeItem('editDraftId'); }
       $('#msg').innerHTML = `<span class="ok">${isDraft ? 'Draft saved' : 'Email sent'} (${r.status})</span>`;
@@ -949,29 +1112,32 @@ async function send() {
   };
   const htmlToText = html => {
     const d = document.createElement('div');
-    d.innerHTML = String(html || '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|li|h\d|tr)>/gi, '\n');
+    d.innerHTML = sanitizeHtml(String(html || '')).replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|li|h\d|tr)>/gi, '\n');
     d.querySelectorAll('li').forEach(li => li.prepend('• '));
     return (d.textContent || '').replace(/\u00a0/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
   };
   const openInOutlook = async () => {
     const to = recipientPills.join(';');
     const cc = $('#cc').value.split(/[;,\s]+/).filter(Boolean).join(';');
+    const bcc = $('#bcc').value.split(/[;,\s]+/).filter(Boolean).join(';');
     const values = getValues();
     const subject = replaceText($('#sj').value || '', values);
     const html = replaceHtml(getHtml() || '', values);
     const body = htmlToText(html);
-    const params = new URLSearchParams();
-    if (to) params.set('to', to);
-    if (cc) params.set('cc', cc);
-    if (subject) params.set('subject', subject);
-    if (body) params.set('body', body);
-    const webUrl = 'https://outlook.office.com/mail/deeplink/compose?' + params.toString();
-    const mailto = 'mailto:' + encodeURIComponent(to) + '?' + new URLSearchParams({ ...(cc ? { cc } : {}), ...(subject ? { subject } : {}), ...(body ? { body } : {}) }).toString();
-    const proceed = await showDialog('Open in Outlook', 'This will open your message in Outlook so you can choose/edit the sending mailbox and send from there. Attachments cannot be transferred automatically and must be added in Outlook. Continue?', true);
+    const buildQuery = pairs => pairs.filter(([, v]) => v).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+    const sender = ss.find(item => String(item.id) === $('#s').value);
+    const mailbox = sender && sender.provider === 'outlook' && sender.from_email ? ('/' + encodeURIComponent(sender.from_email)) : '';
+    const webUrl = 'https://outlook.office.com/mail' + mailbox + '/deeplink/compose?' + buildQuery([['to', to], ['cc', cc], ['bcc', bcc], ['subject', subject], ['body', body]]);
+    const mailto = 'mailto:' + to.split(';').map(s => encodeURIComponent(s.trim())).filter(Boolean).join(',') + (() => { const q = buildQuery([['cc', cc], ['bcc', bcc], ['subject', subject], ['body', body]]); return q ? '?' + q : ''; })();
+    const proceed = await showDialog('Open in Outlook', 'This opens your message in Outlook Web in the selected sender\'s mailbox so you can review and send it from there. MailDesk tracking does not apply. Continue?', true);
     if (!proceed) return;
     const win = window.open(webUrl, '_blank', 'noopener,noreferrer');
-    if (!win) location.href = mailto;
-    $('#msg').innerHTML = '<span class="ok">Opened in Outlook. Review the sender/mailbox, add attachments if needed, then send from Outlook.</span>';
+    if (!win) {
+      location.href = mailto;
+      $('#msg').innerHTML = '<span class="err">Popup blocked; opened your default mail app via mailto instead.</span>';
+      return;
+    }
+    $('#msg').innerHTML = '<span class="ok">Opened in Outlook Web. Review the sender/mailbox, then send from Outlook.</span>';
   };
   $('#sd').onclick = () => doSend(false);
   $('#sdOutlook').onclick = openInOutlook;
@@ -982,6 +1148,7 @@ async function send() {
 async function tpl() {
   const ts = await api('/api/templates');
   const coName = sessionStorage.cname || '';
+  const canManage = R === 'super' || R === 'admin';
   $('#m').innerHTML = `
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px;">
@@ -991,10 +1158,11 @@ async function tpl() {
         </div>
         ${R === 'super' ? `<span style="font-size:11px;background:#eef4ff;border:1px solid #d5e6ff;padding:2px 8px;border-radius:8px;color:var(--ac)">Switch company above</span>` : ''}
       </div>
-      <div class="template-grid">${ts.map(t => `<article class="template-card"><h4>${esc(t.name)}</h4><div class="template-subject">${esc(t.subject)}</div><div class="template-fields">${t.fields ? t.fields.map(f => `<span class="template-field">{{${f.key}}}</span>`).join('') : ''}</div><div class="template-actions"><button class="p" data-use="${t.id}">Use in email</button><button class="secondary" data-e="${t.id}">Edit</button> <button class="danger" data-d="${t.id}">Delete</button></div></article>`).join('')}</div>
+      <div class="template-grid">${ts.map(t => `<article class="template-card"><h4>${esc(t.name)}</h4><div class="template-subject">${esc(t.subject)}</div><div class="template-fields">${t.fields ? t.fields.map(f => `<span class="template-field">{{${f.key}}}</span>`).join('') : ''}</div><div class="template-actions"><button class="p" data-use="${t.id}">Use in email</button>${canManage ? ` <button class="secondary" data-e="${t.id}">Edit</button> <button class="danger" data-d="${t.id}">Delete</button>` : ''}</div></article>`).join('')}</div>
       ${ts.length ? '' : '<p class="empty">No templates yet.</p>'}
+      ${canManage ? '' : '<p class="small" style="margin-top:10px;">Only admins can create, edit, or delete templates.</p>'}
     </div>
-    <div class="card template-form">
+    ${canManage ? `<div class="card template-form">
       <h3 style="margin:0 0 12px 0;font-size:17px">Create template</h3>
       <label>Name</label><input id="tn"><label>Subject</label><input id="tsj" placeholder="Hello {{first_name}}">
       <div class="merge-tools">
@@ -1020,8 +1188,17 @@ async function tpl() {
         <div id="tpb" style="font-size:13px;line-height:1.5;color:#0f172a"></div>
       </div>
       <p id="tmsg" class="err"></p><button class="p" id="tsv">Save template</button>
-    </div>`;
-  let tquill = new Quill('#teditor', { theme: 'snow', placeholder: 'Template body…', modules: { toolbar: templateToolbar } });
+    </div>` : ''}`;
+  if (!canManage) {
+    $('#m').onclick = async e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.dataset.use) { sessionStorage.composeTemplateId = b.dataset.use; go('send'); }
+    };
+    return;
+  }
+  destroyQuill(tquill);
+  tquill = new Quill('#teditor', { theme: 'snow', placeholder: 'Template body…', modules: { toolbar: templateToolbar } });
   let savedSchema = [];
   const escId = s => String(s).replace(/[^a-z0-9]/gi, '_');
   const tplKeys = () => [...new Set([...(tquill.root.innerHTML + $('#tsj').value).matchAll(/{{\s*(\w+)\s*}}/g)].map(m => m[1]))];
@@ -1046,7 +1223,7 @@ async function tpl() {
     const vals = Object.fromEntries([...document.querySelectorAll('#tfvals [data-preview-field]')].map(el => [el.dataset.previewField, el.value]));
     const fill = text => text.replace(/{{\s*(\w+)\s*}}/g, (_, key) => esc(vals[key] ?? ''));
     $('#tpj').textContent = fill($('#tsj').value) || '(no subject)';
-    $('#tpb').innerHTML = fill(getEditorHtml(tquill)) || '(empty)';
+    $('#tpb').innerHTML = sanitizeHtml(fill(getEditorHtml(tquill))) || '(empty)';
   };
   const tplRefresh = () => { tplRenderFields(); tplRenderVals(); tplRenderPreview(); };
   const spacingBlocks = 'p,h1,h2,h3,h4,h5,h6,li,blockquote,pre';
@@ -1071,7 +1248,7 @@ async function tpl() {
     const f = e.target.files[0]; if (!f) return;
     const html = await f.text();
     if (!$('#tn').value.trim()) $('#tn').value = f.name.replace(/\.html?$/i, '').replace(/[-_]+/g, ' ').trim();
-    tquill.root.innerHTML = html;
+    tquill.root.innerHTML = sanitizeHtml(html);
     readSpacing(); applySpacing();
     $('#tfmsg').innerHTML = `<span class="ok">${html.length} bytes loaded, ${tplKeys().length} merge field(s) detected</span>`;
   };
@@ -1098,7 +1275,7 @@ async function tpl() {
     if (b.dataset.e) {
       const t = ts.find(x => x.id == b.dataset.e);
       $('#tn').value = t.name; $('#tsj').value = t.subject; savedSchema = t.fields || [];
-      tquill.root.innerHTML = t.html || '';
+      tquill.root.innerHTML = sanitizeHtml(t.html || '');
       readSpacing(); applySpacing();
       $('#tsv').textContent = 'Update template';
       $('#tsv').dataset.upd = t.id;
@@ -1124,7 +1301,7 @@ async function snd() {
       <h3 style="margin:0 0 12px 0;font-size:17px">${R === 'user' ? 'My senders' : 'Company senders'}</h3>
       <table>
         <thead><tr><th>From<th>Scope<th>Provider<th>Default<th>Status<th></th></thead>
-        <tbody>${ss.map(s => { const manageable = R !== 'user' || s.is_personal; return `<tr><td>${esc(s.from_name || '')} &lt;${esc(s.from_email)}&gt;<td><span class="badge">${s.is_personal ? 'Personal' : 'Company'}</span><td>${s.provider}<td>${s.is_default ? '<span class="badge ok">default</span>' : ''}<td><span class="badge ${s.status === 'active' ? 'ok' : 'bad'}">${s.status}</span><td>${manageable ? `<button data-f="${s.id}">Make default</button> <button class="danger" data-d="${s.id}">Remove</button>` : '<span class="small">Managed by company</span>'}</tr>`; }).join('')}</tbody>
+        <tbody>${ss.map(s => { const manageable = R !== 'user' || s.is_personal; return `<tr><td>${esc(s.from_name || '')} &lt;${esc(s.from_email)}&gt;<td><span class="badge">${s.is_personal ? 'Personal' : 'Company'}</span><td>${esc(s.provider)}<td>${s.is_default ? '<span class="badge ok">default</span>' : ''}<td><span class="badge ${s.status === 'active' ? 'ok' : 'bad'}">${esc(s.status)}</span><td>${manageable ? `<button data-f="${s.id}">Make default</button> <button class="danger" data-d="${s.id}">Remove</button>` : '<span class="small">Managed by company</span>'}</tr>`; }).join('')}</tbody>
       </table>
       ${ss.length ? '' : '<p class="empty">No senders configured.</p>'}
       <p><button class="p" id="ol">${R === 'user' ? 'Connect my Outlook account' : 'Connect Outlook account'}</button></p>
@@ -1261,8 +1438,8 @@ async function usr() {
     <div class="card">
       <h3 style="margin:0 0 12px 0;font-size:17px">Users</h3>
       <table>
-        <thead><tr><th>Email<th>Role<th></th></thead>
-        <tbody>${us.map(u => `<tr><td>${esc(u.email)}<td>${u.role}</tr>`).join('')}</tbody>
+        <thead><tr><th>Email<th>Role<th>Actions</th></thead>
+        <tbody>${us.map(u => `<tr><td>${esc(u.email)}<td>${u.role}<td>${R === 'super' || R === 'admin' ? `<button data-rp="${u.id}">Reset password</button>` : ''}</tr>`).join('')}</tbody>
       </table>
       ${us.length ? '' : '<p class="empty">No users.</p>'}
     </div>
@@ -1271,7 +1448,20 @@ async function usr() {
       <label>Email</label><input id="e"><label>Password</label><input id="p" type="password"><label>Role</label><select id="r"><option>user<option>admin</select>
       <p id="msg" class="err"></p><button class="p" id="ad">Add user</button>
     </div>`;
-  $('#ad').onclick = async () => { try { await api('/api/users', { b: { email: $('#e').value, password: $('#p').value, role: $('#r').value } }); usr(); } catch (e) { $('#msg').textContent = e.message; } };
+  $('#ad').onclick = async () => {
+    try {
+      const body = { email: $('#e').value, password: $('#p').value, role: $('#r').value };
+      if (R === 'super' && CO) body.company_ids = [Number(CO)];
+      await api('/api/users', { b: body });
+      usr();
+    } catch (e) { $('#msg').textContent = e.message; }
+  };
+  $('#m').querySelectorAll('button[data-rp]').forEach(b => b.onclick = async () => {
+    const d = await showFormDialog('Reset password', [{ name: 'password', type: 'password', label: 'New password', placeholder: '••••••••' }]);
+    if (!d) return;
+    if (!d.password || d.password.length < 6) { await showDialog('Invalid', 'Password must be at least 6 characters'); return; }
+    try { await api('/api/users/' + b.dataset.rp + '/password', { method: 'PUT', b: { password: d.password } }); await showDialog('Done', 'Password updated'); usr(); } catch (e) { await showDialog('Error', e.message); }
+  });
 }
 
 // ---------- COMPANIES ----------
@@ -1330,8 +1520,8 @@ async function drafts() {
     <div class="card">
       <h3 style="margin:0 0 12px 0;font-size:17px">Drafts</h3>
       <table>
-        <thead><tr><th>Saved<th>To<th>CC<th>Subject<th></th></tr></thead>
-        <tbody>${items.map(item => `<tr><td>${esc(item.at)}<td>${esc(item.to_list || '—')}<td>${esc(item.cc_list || '—')}<td>${esc(item.subject || '(no subject)')}<td><button class="secondary" data-open-draft="${item.id}">Edit</button> <button class="danger" data-delete-draft="${item.id}">Delete</button></tr>`).join('')}</tbody>
+        <thead><tr><th>Saved<th>To<th>CC<th>BCC<th>Subject<th></th></tr></thead>
+        <tbody>${items.map(item => `<tr><td>${esc(item.at)}<td>${esc(item.to_list || '—')}<td>${esc(item.cc_list || '—')}<td>${esc(item.bcc_list || '—')}<td>${esc(item.subject || '(no subject)')}<td><button class="secondary" data-open-draft="${item.id}">Edit</button> <button class="danger" data-delete-draft="${item.id}">Delete</button></tr>`).join('')}</tbody>
       </table>
       ${items.length ? '' : '<p class="empty">No saved drafts yet.</p>'}
     </div>`;
@@ -1346,42 +1536,70 @@ async function drafts() {
 }
 
 // ---------- SENT LOG ----------
+let logPage = 1;
+const LOG_PAGE_SIZE = 10;
 async function log() {
   const l = (await api('/api/sent')).filter(item => item.status !== 'draft');
   const now = Date.now();
+  const fuCount = x => { const m = Number(x.follow_up_max) || 0; const s = Number(x.followups) || 0; return m > 0 ? `${s}/${m}` : `${s} sent`; };
+  const fuDone = x => { const m = Number(x.follow_up_max) || 0; const s = Number(x.follow_up_sent_count) || 0; return !!(x.follow_up_done_at || x.follow_up_reminded_at === 'done' || (m > 0 && s >= m)); };
   const followBadge = x => {
     if (x.replied_at) return '<span class="badge ok">Replied</span>';
-    if (x.follow_up_done_at) return '<span class="badge follow-done">Follow-up done</span>';
+    if (fuDone(x)) return '<span class="badge follow-done">Follow-up done</span>';
     if (!x.follow_up_at) return '<span class="badge">No follow-up</span>';
+    const cnt = fuCount(x);
+    if (x.follow_up_reminded_at === 'blocked') return `<span class="badge follow-overdue">Blocked · ${esc(cnt)}${x.follow_up_last_error ? `<div class="small">${esc(String(x.follow_up_last_error).slice(0, 60))}</div>` : ''}</span>`;
     const due = new Date(x.follow_up_at).getTime();
-    if (!Number.isNaN(due) && due < now) return `<span class="badge follow-overdue">Overdue ${esc(x.follow_up_at.replace('T',' '))}</span>`;
-    return `<span class="badge follow-due">Due ${esc(x.follow_up_at.replace('T',' '))}</span>`;
+    const retry = x.follow_up_reminded_at === 'retry' ? ' · retry' : '';
+    if (!Number.isNaN(due) && due < now) return `<span class="badge follow-overdue">Overdue ${esc(x.follow_up_at.replace('T',' '))} · ${cnt}${retry}</span>`;
+    return `<span class="badge follow-due">Due ${esc(x.follow_up_at.replace('T',' '))} · ${cnt}${retry}</span>`;
   };
+  const totalPages = Math.max(1, Math.ceil(l.length / LOG_PAGE_SIZE));
+  if (logPage > totalPages) logPage = totalPages;
+  if (logPage < 1) logPage = 1;
+  const pageItems = l.slice((logPage - 1) * LOG_PAGE_SIZE, logPage * LOG_PAGE_SIZE);
   $('#m').innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 12px 0;font-size:17px">Sent log & follow-ups</h3>
-      <table>
-        <thead><tr><th>When<th>To<th>Subject<th>Status<th>Tracking<th>Follow-up<th>Actions</th></thead>
-        <tbody>${l.map(x => `<tr>
-          <td>${esc(x.at)}<td>${esc(x.to_list)}<td>${esc(x.subject)}
-          <td><span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${esc(x.status)}</span>
-          <td>${x.opens || 0} opens · ${x.clicks || 0} clicks · ${x.replies || 0} replies${x.replied_at ? `<div class="small">Replied: ${esc(String(x.replied_at).replace('T',' ').slice(0,16))}</div>` : ''}
-          <td>${followBadge(x)}${x.follow_up_note ? `<div class="small">${esc(x.follow_up_note)}</div>` : ''}
-          <td><div class="follow-actions"><button class="secondary" data-follow="${x.id}" data-at="${esc(x.follow_up_at||'')}" data-note="${esc(x.follow_up_note||'')}">Set follow-up</button><button class="secondary" data-reply="${x.id}">Mark replied</button>${x.follow_up_at && !x.follow_up_done_at && !x.replied_at ? `<button data-done="${x.id}">Done</button>` : ''}</div>
-        </tr>`).join('')}</tbody>
+    <div class="trk-stats">
+      <div class="stat-card"><div class="stat-top">Emails</div><div class="stat-value">${l.length}</div></div>
+      <div class="stat-card"><div class="stat-top">Reminders sent</div><div class="stat-value">${l.reduce((a, x) => a + (Number(x.followups) || 0), 0)}</div></div>
+      <div class="stat-card"><div class="stat-top">Active follow-ups</div><div class="stat-value">${l.filter(x => x.follow_up_at && !x.replied_at && !fuDone(x)).length}</div></div>
+      <div class="stat-card"><div class="stat-top">Replies</div><div class="stat-value">${l.filter(x => x.replied_at).length}</div></div>
+    </div>
+    <div class="trk-panel">
+      <table class="trk-table">
+        <thead><tr><th>To<th>Subject<th>Engagement<th>Follow-up<th>Actions</th></thead>
+        <tbody>${pageItems.map(x => `<tr>
+          <td><span class="trk-to">${esc(x.to_list)}</span> <span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${esc(x.status)}</span>${x.sender_email ? `<span class="trk-sub">${esc(x.sender_email)}</span>` : ''}</td>
+          <td><div class="trk-subj" title="${esc(x.subject || '')}">${esc(x.subject || '(no subject)')}</div>${x.at ? `<span class="trk-sub">${esc(x.at)}</span>` : ''}</td>
+          <td class="trk-eng">${x.opens || 0} opens · ${x.clicks || 0} clicks · ${x.replies || 0} replies · ${x.followups || 0} reminders${x.replied_at ? `<div class="small">Replied: ${esc(String(x.replied_at).replace('T',' ').slice(0,16))}</div>` : ''}</td>
+          <td>${followBadge(x)}${x.follow_up_sent_at ? `<div class="small">Last reminder: ${esc(String(x.follow_up_sent_at).replace('T',' ').slice(0,16))}</div>` : ''}${x.follow_up_last_error ? `<div class="small follow-error">Failed: ${esc(String(x.follow_up_last_error).slice(0,90))}</div>` : ''}${x.follow_up_note ? `<div class="small">${esc(x.follow_up_note)}</div>` : ''}</td>
+          <td><div class="follow-actions"><button class="secondary btn-follow" data-follow="${x.id}" data-at="${esc(x.follow_up_at||'')}" data-note="${esc(x.follow_up_note||'')}" data-repeat="${esc(x.follow_up_repeat_days||2)}" data-max="${esc(x.follow_up_max??0)}">Set follow-up</button>${x.follow_up_at && !fuDone(x) && !x.replied_at ? `<button class="secondary btn-snooze" data-snooze="1" data-id="${x.id}">Snooze 1d</button><button class="secondary btn-snooze" data-snooze="3" data-id="${x.id}">Snooze 3d</button><button class="btn-done" data-done="${x.id}">Done</button>` : ''}<button class="secondary" data-reply="${x.id}">Mark replied</button></div></td>
+        </tr>`).join('') || '<tr><td colspan="5" class="empty">No sent emails.</td></tr>'}</tbody>
       </table>
-      ${l.length ? '' : '<p class="empty">No sent emails.</p>'}
+    </div>
+    <div class="trk-pager">
+      <button class="secondary" data-page="prev" ${logPage <= 1 ? 'disabled' : ''}>‹ Previous</button>
+      <span class="small">Page ${logPage} of ${totalPages} · ${l.length} emails</span>
+      <button class="secondary" data-page="next" ${logPage >= totalPages ? 'disabled' : ''}>Next ›</button>
     </div>`;
   $('#m').onclick = async e => {
     const b = e.target.closest('button'); if (!b) return;
     try {
+      if (b.dataset.page) { logPage = Math.max(1, logPage + (b.dataset.page === 'next' ? 1 : -1)); return log(); }
       if (b.dataset.follow) {
         const form = await showFormDialog('Set follow-up', [
-          { name: 'at', label: 'Follow-up date/time', type: 'datetime-local', value: b.dataset.at || '' },
-          { name: 'note', label: 'Follow-up note (optional)', type: 'text', value: b.dataset.note || '' }
+          { name: 'at', label: 'Follow-up date/time', type: 'datetime-local', value: toLocalInput(b.dataset.at) },
+          { name: 'note', label: 'Follow-up note (optional)', type: 'text', value: b.dataset.note || '' },
+          { name: 'repeat', label: 'Repeat every (days)', type: 'number', value: b.dataset.repeat || '2' },
+          { name: 'max', label: 'Max follow-ups (0 = until done)', type: 'number', value: b.dataset.max ?? '0' }
         ]);
         if (!form) return;
-        await api('/api/campaign-recipients/' + b.dataset.follow + '/follow-up', { m: 'PUT', b: { follow_up_at: (form.at || '').trim() || null, follow_up_note: (form.note || '').trim(), clear_done: !(form.at || '').trim() } });
+        await api('/api/campaign-recipients/' + b.dataset.follow + '/follow-up', { m: 'PUT', b: { follow_up_at: (form.at || '').trim() || null, follow_up_note: (form.note || '').trim(), follow_up_repeat_days: Math.min(365, Math.max(1, parseInt(form.repeat, 10) || 2)), follow_up_max: Math.min(20, Math.max(0, parseInt(form.max, 10) || 0)), clear_done: !(form.at || '').trim() } });
+        return log();
+      }
+      if (b.dataset.snooze) {
+        const days = Math.max(1, parseInt(b.dataset.snooze, 10) || 1);
+        await api('/api/campaign-recipients/' + b.dataset.id + '/follow-up', { m: 'PUT', b: { snooze: 1, follow_up_at: new Date(Date.now() + days * 86400000).toISOString() } });
         return log();
       }
       if (b.dataset.done) { await api('/api/campaign-recipients/' + b.dataset.done + '/follow-up', { m: 'PUT', b: { done: 1 } }); return log(); }
@@ -1398,26 +1616,50 @@ async function log() {
 }
 
 // ---------- TRACKING ----------
+let trkPage = 1;
+const TRK_PAGE_SIZE = 10;
 async function trk() {
-  const l = await api('/api/sent');
+  const l = await api('/api/sent?scope=all');
+  const totalPages = Math.max(1, Math.ceil(l.length / TRK_PAGE_SIZE));
+  if (trkPage > totalPages) trkPage = totalPages;
+  if (trkPage < 1) trkPage = 1;
+  const pageItems = l.slice((trkPage - 1) * TRK_PAGE_SIZE, trkPage * TRK_PAGE_SIZE);
   $('#m').innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 12px 0;font-size:17px">Tracking, replies & follow-ups</h3>
-      <table>
-        <thead><tr><th>When<th>To<th>Subject<th>Events<th>Follow-up<th>Actions</th></thead>
+    <div class="trk-stats">
+      <div class="stat-card"><div class="stat-top">Emails</div><div class="stat-value">${l.length}</div></div>
+      <div class="stat-card"><div class="stat-top">Reminders sent</div><div class="stat-value">${l.reduce((a, x) => a + (Number(x.followups) || 0), 0)}</div></div>
+      <div class="stat-card"><div class="stat-top">Active follow-ups</div><div class="stat-value">${l.filter(x => x.follow_up_at && !x.replied_at && !x.follow_up_done_at && x.follow_up_reminded_at !== 'done' && !((Number(x.follow_up_max) || 0) > 0 && (Number(x.follow_up_sent_count) || 0) >= (Number(x.follow_up_max) || 0))).length}</div></div>
+      <div class="stat-card"><div class="stat-top">Replies</div><div class="stat-value">${l.filter(x => x.replied_at).length}</div></div>
+    </div>
+    <div class="trk-panel">
+      <table class="trk-table">
+        <thead><tr><th>To<th>Subject<th>Engagement<th>Follow-up<th>Actions</th></thead>
         <tbody id="trk-body"></tbody>
       </table>
+    </div>
+    <div class="trk-pager">
+      <button class="secondary" data-page="prev" ${trkPage <= 1 ? 'disabled' : ''}>‹ Previous</button>
+      <span class="small">Page ${trkPage} of ${totalPages} · ${l.length} emails</span>
+      <button class="secondary" data-page="next" ${trkPage >= totalPages ? 'disabled' : ''}>Next ›</button>
     </div>`;
   $('#m').onclick = async e => {
     const b = e.target.closest('button'); if (!b) return;
     try {
+      if (b.dataset.page) { trkPage = Math.max(1, trkPage + (b.dataset.page === 'next' ? 1 : -1)); return trk(); }
       if (b.dataset.follow) {
         const form = await showFormDialog('Set follow-up', [
-          { name: 'at', label: 'Follow-up date/time', type: 'datetime-local', value: b.dataset.at || '' },
-          { name: 'note', label: 'Follow-up note (optional)', type: 'text', value: b.dataset.note || '' }
+          { name: 'at', label: 'Follow-up date/time', type: 'datetime-local', value: toLocalInput(b.dataset.at) },
+          { name: 'note', label: 'Follow-up note (optional)', type: 'text', value: b.dataset.note || '' },
+          { name: 'repeat', label: 'Repeat every (days)', type: 'number', value: b.dataset.repeat || '2' },
+          { name: 'max', label: 'Max follow-ups (0 = until done)', type: 'number', value: b.dataset.max ?? '0' }
         ]);
         if (!form) return;
-        await api('/api/campaign-recipients/' + b.dataset.follow + '/follow-up', { m: 'PUT', b: { follow_up_at: (form.at || '').trim() || null, follow_up_note: (form.note || '').trim(), clear_done: !(form.at || '').trim() } });
+        await api('/api/campaign-recipients/' + b.dataset.follow + '/follow-up', { m: 'PUT', b: { follow_up_at: (form.at || '').trim() || null, follow_up_note: (form.note || '').trim(), follow_up_repeat_days: Math.min(365, Math.max(1, parseInt(form.repeat, 10) || 2)), follow_up_max: Math.min(20, Math.max(0, parseInt(form.max, 10) || 0)), clear_done: !(form.at || '').trim() } });
+        return trk();
+      }
+      if (b.dataset.snooze) {
+        const days = Math.max(1, parseInt(b.dataset.snooze, 10) || 1);
+        await api('/api/campaign-recipients/' + b.dataset.id + '/follow-up', { m: 'PUT', b: { snooze: 1, follow_up_at: new Date(Date.now() + days * 86400000).toISOString() } });
         return trk();
       }
       if (b.dataset.done) { await api('/api/campaign-recipients/' + b.dataset.done + '/follow-up', { m: 'PUT', b: { done: 1 } }); return trk(); }
@@ -1432,23 +1674,29 @@ async function trk() {
     } catch (err) { await showDialog('Could not update tracking', err.message); }
   };
   const body = $('#trk-body');
-  if (!l.length) { body.innerHTML = '<tr><td colspan="6" class="empty">No sent emails yet.</td></tr>'; return; }
+  if (!l.length) { body.innerHTML = '<tr><td colspan="5" class="empty">No sent emails yet.</td></tr>'; return; }
   const now = Date.now();
-  for (const x of l) {
-    const evs = await api(`/api/track/events/${x.id}`).catch(() => []);
-    const events = evs.map(e => `<span class="tracking-badge track-${esc(e.event_type)}">${esc(e.event_type)}</span> <span class="small">${esc(String(e.event_at||'').replace('T',' ').slice(0,16))}</span>`).join('<br>') || '<span class="small">No events yet</span>';
-    const replied = x.replied_at || evs.some(e => e.event_type === 'reply');
+  body.innerHTML = pageItems.map(x => {
     const due = x.follow_up_at ? new Date(x.follow_up_at).getTime() : NaN;
-    const follow = replied ? `<span class="badge ok">Replied</span>` : x.follow_up_done_at ? `<span class="badge follow-done">Done</span>` : x.follow_up_at ? `<span class="badge ${!Number.isNaN(due)&&due<now?'follow-overdue':'follow-due'}">${!Number.isNaN(due)&&due<now?'Overdue':'Due'} ${esc(x.follow_up_at.replace('T',' '))}</span>` : '<span class="badge">No follow-up</span>';
-    body.innerHTML += `<tr>
-      <td class="tracking-table">${esc(x.at)}
-      <td class="tracking-table">${esc(x.to_list)}
-      <td class="tracking-table">${esc(x.subject)}
-      <td class="tracking-table">${events}
-      <td class="tracking-table">${follow}${x.follow_up_note ? `<div class="small">${esc(x.follow_up_note)}</div>` : ''}
-      <td class="tracking-table"><div class="follow-actions"><button class="secondary" data-follow="${x.id}" data-at="${esc(x.follow_up_at||'')}" data-note="${esc(x.follow_up_note||'')}">Set follow-up</button><button class="secondary" data-reply="${x.id}">Mark replied</button>${x.follow_up_at && !x.follow_up_done_at && !replied ? `<button data-done="${x.id}">Done</button>` : ''}</div>
+    const maxN = Number(x.follow_up_max) || 0; const shownN = Number(x.followups) || 0; const totalN = Number(x.follow_up_sent_count) || 0;
+    const cnt = maxN > 0 ? `${shownN}/${maxN}` : `${shownN} sent`;
+    const fuDone = !!(x.follow_up_done_at || x.follow_up_reminded_at === 'done' || (maxN > 0 && totalN >= maxN));
+    let follow;
+    if (x.replied_at) follow = '<span class="badge ok">Replied</span>';
+    else if (fuDone) follow = '<span class="badge follow-done">Done</span>';
+    else if (!x.follow_up_at) follow = '<span class="badge">No follow-up</span>';
+    else if (x.follow_up_reminded_at === 'blocked') follow = `<span class="badge follow-overdue">Blocked · ${esc(cnt)}</span>`;
+    else follow = `<span class="badge ${!Number.isNaN(due)&&due<now?'follow-overdue':'follow-due'}">${!Number.isNaN(due)&&due<now?'Overdue':'Due'} ${esc(x.follow_up_at.replace('T',' '))} · ${esc(cnt)}</span>`;
+    const extra = `${x.followups ? `<div class="small">${x.followups} reminder(s)</div>` : ''}${x.follow_up_last_error ? `<div class="small follow-error">${esc(String(x.follow_up_last_error).slice(0,60))}</div>` : ''}`;
+    const actions = `<div class="follow-actions"><button class="secondary btn-follow" data-follow="${x.id}" data-at="${esc(x.follow_up_at||'')}" data-note="${esc(x.follow_up_note||'')}" data-repeat="${esc(x.follow_up_repeat_days||2)}" data-max="${esc(x.follow_up_max??0)}">Follow-up</button>${x.follow_up_at && !fuDone && !x.replied_at ? `<button class="secondary btn-snooze" data-snooze="1" data-id="${x.id}">+1d</button><button class="secondary btn-snooze" data-snooze="3" data-id="${x.id}">+3d</button><button class="btn-done" data-done="${x.id}">Done</button>` : ''}<button class="secondary" data-reply="${x.id}">Replied</button></div>`;
+    return `<tr>
+      <td><span class="trk-to">${esc(x.to_list)}</span> <span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${esc(x.status)}</span>${x.sender_email ? `<span class="trk-sub">${esc(x.sender_email)}</span>` : ''}</td>
+      <td><div class="trk-subj" title="${esc(x.subject || '')}">${esc(x.subject || '(no subject)')}</div>${x.at ? `<span class="trk-sub">${esc(x.at)}</span>` : ''}</td>
+      <td class="trk-eng">${x.opens || 0} opens · ${x.clicks || 0} clicks · ${x.replies || 0} replies</td>
+      <td>${follow}${extra}</td>
+      <td>${actions}</td>
     </tr>`;
-  }
+  }).join('');
 }
 
 const V = { send, drafts, tpl, snd, recipients, usr, co, trk, log };
