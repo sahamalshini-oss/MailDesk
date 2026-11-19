@@ -43,7 +43,7 @@ for(const[column,type]of Object.entries({draft_html:'text',draft_values:'text',d
 for(const[column,type]of Object.entries({campaign_id:'int',campaign_recipient_id:'int'}))ensureCol('email_events',column,type);
 for(const[column,type]of Object.entries({recipient_company_id:'int'}))ensureCol('contacts',column,type);
 for(const[column,type]of Object.entries({campaign_id:'int'}))ensureCol('attachments',column,type);
- for(const[column,type]of Object.entries({follow_up_at:'text',replied_at:'text',follow_up_note:'text',follow_up_done_at:'text',follow_up_reminded_at:'text',follow_up_repeat_days:'int',follow_up_max:'int',follow_up_sent_count:'int',follow_up_attempts:'int',follow_up_next_retry_at:'text',follow_up_last_error:'text',follow_up_sent_at:'text'}))ensureCol('campaign_recipients',column,type);
+ for(const[column,type]of Object.entries({follow_up_at:'text',replied_at:'text',follow_up_note:'text',follow_up_done_at:'text',follow_up_reminded_at:'text',follow_up_repeat_days:'int',follow_up_max:'int',follow_up_sent_count:'int',follow_up_attempts:'int',follow_up_next_retry_at:'text',follow_up_last_error:'text',follow_up_sent_at:'text',in_reply_to:'text'}))ensureCol('campaign_recipients',column,type);
 if(!db.prepare('select 1 from users').get()){
   const h=p=>bcrypt.hashSync(p,12);
   const superId=db.prepare('insert into users(company_id,role,email,hash) values(?,?,?,?)').run(null,'super','admin@maildesk.com',h('admin123')).lastInsertRowid;
@@ -349,19 +349,21 @@ const resolveRecipients=(q,body)=>{ const {emails=[],contactIds=[],recipientComp
 async function deliverRecipient({campaign,recipient,sd,subject,html,attachments,fromName,fromEmail,cc=[],bcc=[]}){
  let sendHtml=String(html||'').replace(/(<a[^>]*href=")([^"]*)(")/gi,(m,pre,url,post)=>{ if(url.includes('/api/track/')||url.startsWith('#')||url.startsWith('mailto:'))return m; return pre+`${BASE_URL}/api/track/click/${recipient.tracking_token}?url=${encodeURIComponent(url)}`+post; });
  sendHtml+=`<img src="${BASE_URL}/api/track/open/${recipient.tracking_token}" width="1" height="1" style="display:none" alt="" border="0">`;
- const to=[recipient.email];
- const payload={from:`"${fromName||''}" <${fromEmail}>`,to,cc,bcc,subject,html:sendHtml,replyTo:fromEmail,attachments:(attachments||[]).map(a=>({filename:a.original_name,path:a.path}))};
- let err=null, st='sent';
- try{
-  if(sd.provider==='smtp'){ await nm.createTransport({host:sd.smtp_host,port:sd.smtp_port,secure:sd.smtp_port===465,auth:{user:sd.smtp_user,pass:dec(sd.secret)}}).sendMail(payload); }
-  else { const t2=await tok({grant_type:'refresh_token',refresh_token:dec(sd.secret)},null); if(t2.refresh_token)db.prepare('update senders set secret=?,status=? where id=?').run(enc(t2.refresh_token),'active',sd.id);
-    const rr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',headers:{Authorization:'Bearer '+t2.access_token,'Content-Type':'application/json'},body:JSON.stringify({message:{subject,body:{contentType:'HTML',content:sendHtml},toRecipients:to.map(a=>({emailAddress:{address:a}})),ccRecipients:cc.map(a=>({emailAddress:{address:a}})),bccRecipients:bcc.map(a=>({emailAddress:{address:a}})),attachments:(attachments||[]).map(a=>({'@odata.type':'#microsoft.graph.fileAttachment',name:a.original_name,contentType:a.mime_type||'application/octet-stream',contentBytes:fs.readFileSync(a.path).toString('base64')}))},saveToSentItems:true})});
-    if(!rr.ok) throw Error((await rr.text()).slice(0,200)); }
- }catch(e){ st='failed'; err=String(e.message||e).slice(0,500); if(AUTH_FAIL_RE.test(err)){ try{db.prepare("update senders set status='needs_reconnect' where id=?").run(sd.id)}catch{} } }
- const now=new Date().toISOString();
- const ccList=[...cc,...bcc.map(e=>`Bcc: ${e}`)].join(', ');
- db.transaction(()=>{
-  db.prepare('update campaign_recipients set status=?,sent_at=?,error=? where id=?').run(st,st==='sent'?now:null,err,recipient.id);
+  sendHtml+=`<!-- MDTRK:${recipient.tracking_token} -->`;
+  const msgId=`<${crypto.randomBytes(16).toString('hex')}@${BASE_URL.replace(/^https?:\/\//,'')}.maildesk>`;
+  const to=[recipient.email];
+  const payload={from:`"${fromName||''}" <${fromEmail}>`,to,cc,bcc,subject,html:sendHtml,replyTo:fromEmail,attachments:(attachments||[]).map(a=>({filename:a.original_name,path:a.path})),messageId:msgId};
+  let err=null, st='sent';
+  try{
+   if(sd.provider==='smtp'){ await nm.createTransport({host:sd.smtp_host,port:sd.smtp_port,secure:sd.smtp_port===465,auth:{user:sd.smtp_user,pass:dec(sd.secret)}}).sendMail(payload); }
+   else { const t2=await tok({grant_type:'refresh_token',refresh_token:dec(sd.secret)},null); if(t2.refresh_token)db.prepare('update senders set secret=?,status=? where id=?').run(enc(t2.refresh_token),'active',sd.id);
+     const rr=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',headers:{Authorization:'Bearer '+t2.access_token,'Content-Type':'application/json'},body:JSON.stringify({message:{subject,body:{contentType:'HTML',content:sendHtml},toRecipients:to.map(a=>({emailAddress:{address:a}})),ccRecipients:cc.map(a=>({emailAddress:{address:a}})),bccRecipients:bcc.map(a=>({emailAddress:{address:a}})),attachments:(attachments||[]).map(a=>({'@odata.type':'#microsoft.graph.fileAttachment',name:a.original_name,contentType:a.mime_type||'application/octet-stream',contentBytes:fs.readFileSync(a.path).toString('base64')})),internetMessageId:msgId},saveToSentItems:true})});
+     if(!rr.ok) throw Error((await rr.text()).slice(0,200)); }
+  }catch(e){ st='failed'; err=String(e.message||e).slice(0,500); if(AUTH_FAIL_RE.test(err)){ try{db.prepare("update senders set status='needs_reconnect' where id=?").run(sd.id)}catch{} } }
+  const now=new Date().toISOString();
+  const ccList=[...cc,...bcc.map(e=>`Bcc: ${e}`)].join(', ');
+  db.transaction(()=>{
+   db.prepare('update campaign_recipients set status=?,sent_at=?,error=?,in_reply_to=? where id=?').run(st,st==='sent'?now:null,err,msgId,recipient.id);
   const existing=db.prepare('select id from sent where campaign_recipient_id=?').get(recipient.id);
   if(existing) db.prepare('update sent set status=?,error=?,at=?,subject=?,sender_id=?,template_id=?,user_id=?,to_list=?,cc_list=? where id=?').run(st,err,now,subject,campaign.sender_id,campaign.template_id||null,campaign.user_id,recipient.email,ccList,existing.id);
   else db.prepare('insert into sent(company_id,user_id,sender_id,template_id,campaign_id,campaign_recipient_id,to_list,cc_list,subject,status,error,scheduled_at,at) values(?,?,?,?,?,?,?,?,?,?,?,?,?)').run(campaign.company_id,campaign.user_id,campaign.sender_id,campaign.template_id||null,campaign.id,recipient.id,recipient.email,ccList,subject,st,err,campaign.scheduled_at||null,now);
@@ -585,18 +587,34 @@ async function scanOutlookReplies(){
       }catch{ continue; }
       let data;
       try{
-        const rr=await fetch('https://graph.microsoft.com/v1.0/me/messages?$top=50&$orderby=receivedDateTime desc&$select=subject,from,receivedDateTime',{headers:{Authorization:'Bearer '+access}});
+        const rr=await fetch('https://graph.microsoft.com/v1.0/me/messages?$top=50&$orderby=receivedDateTime desc&$select=subject,from,receivedDateTime,inReplyTo,internetMessageId,body,internetMessageHeaders',{headers:{Authorization:'Bearer '+access}});
         if(!rr.ok) continue;
         data=await rr.json();
       }catch{ continue; }
       const msgs=Array.isArray(data.value)?data.value:[];
       for(const m of msgs){
         const subj=String(m.subject||'');
-        if(!/^\s*re\s*:/i.test(subj)) continue;
         const from=String((m.from&&m.from.emailAddress&&m.from.emailAddress.address)||'').toLowerCase();
         if(!from) continue;
         const at=m.receivedDateTime||new Date().toISOString();
-        const rec=db.prepare(`select cr.id, cr.campaign_id from campaign_recipients cr join campaigns c on c.id=cr.campaign_id where c.company_id=? and lower(cr.email)=? and cr.status='sent' and cr.replied_at is null and (cr.sent_at is null or datetime(cr.sent_at)<=datetime(?)) order by cr.id desc limit 1`).get(sd.company_id,from,at);
+        let rec=null;
+        // 1) In-Reply-To / Message-ID header match
+        const irt=String(m.inReplyTo||m.internetMessageId||'').trim().toLowerCase();
+        if(irt){
+          rec=db.prepare(`select cr.id, cr.campaign_id from campaign_recipients cr join campaigns c on c.id=cr.campaign_id where c.company_id=? and lower(cr.in_reply_to)=? and cr.status='sent' and cr.replied_at is null order by cr.id desc limit 1`).get(sd.company_id,irt);
+        }
+        // 2) MDTRK token in body
+        if(!rec){
+          const body=String(m.body&&m.body.content||'');
+          const tk=(body.match(/MDTRK:([0-9a-f]{32})/i)||[])[1];
+          if(tk){
+            rec=db.prepare(`select cr.id, cr.campaign_id from campaign_recipients cr join campaigns c on c.id=cr.campaign_id where c.company_id=? and lower(cr.tracking_token)=? and cr.status='sent' and cr.replied_at is null order by cr.id desc limit 1`).get(sd.company_id,tk.toLowerCase());
+          }
+        }
+        // 3) Fallback: subject Re: + sender email
+        if(!rec && /^\s*re\s*:/i.test(subj)){
+          rec=db.prepare(`select cr.id, cr.campaign_id from campaign_recipients cr join campaigns c on c.id=cr.campaign_id where c.company_id=? and lower(cr.email)=? and cr.status='sent' and cr.replied_at is null and (cr.sent_at is null or datetime(cr.sent_at)<=datetime(?)) order by cr.id desc limit 1`).get(sd.company_id,from,at);
+        }
         if(!rec) continue;
         const upd=db.prepare('update campaign_recipients set replied_at=coalesce(replied_at,?) where id=? and replied_at is null').run(at,rec.id);
         if(!upd.changes) continue;

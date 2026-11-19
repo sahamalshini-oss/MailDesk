@@ -416,6 +416,9 @@ iframe { width: 100%; height: 320px; border: 1px solid var(--line); border-radiu
 .trk-table th:nth-child(3), .trk-table td:nth-child(3) { width: 15%; }
 .trk-table th:nth-child(4), .trk-table td:nth-child(4) { width: 19%; }
 .trk-table th:nth-child(5), .trk-table td:nth-child(5) { width: 16%; }
+.trk-table.log-table th:nth-child(1), .trk-table.log-table td:nth-child(1) { width: 38%; }
+.trk-table.log-table th:nth-child(2), .trk-table.log-table td:nth-child(2) { width: 40%; }
+.trk-table.log-table th:nth-child(3), .trk-table.log-table td:nth-child(3) { width: 22%; }
 .trk-to { font-weight: 700; color: var(--ink); }
 .trk-sub { display: block; margin-top: 3px; color: var(--mut); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .trk-table .trk-subj { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1566,15 +1569,13 @@ async function log() {
       <div class="stat-card"><div class="stat-top">Replies</div><div class="stat-value">${l.filter(x => x.replied_at).length}</div></div>
     </div>
     <div class="trk-panel">
-      <table class="trk-table">
-        <thead><tr><th>To<th>Subject<th>Engagement<th>Follow-up<th>Actions</th></thead>
+      <table class="trk-table log-table">
+        <thead><tr><th>To<th>Subject<th>Follow-up</th></thead>
         <tbody>${pageItems.map(x => `<tr>
           <td><span class="trk-to">${esc(x.to_list)}</span> <span class="badge ${x.status === 'sent' ? 'ok' : x.status === 'failed' ? 'bad' : 'ok'}">${esc(x.status)}</span>${x.sender_email ? `<span class="trk-sub">${esc(x.sender_email)}</span>` : ''}</td>
           <td><div class="trk-subj" title="${esc(x.subject || '')}">${esc(x.subject || '(no subject)')}</div>${x.at ? `<span class="trk-sub">${esc(x.at)}</span>` : ''}</td>
-          <td class="trk-eng">${x.opens || 0} opens · ${x.clicks || 0} clicks · ${x.replies || 0} replies · ${x.followups || 0} reminders${x.replied_at ? `<div class="small">Replied: ${esc(String(x.replied_at).replace('T',' ').slice(0,16))}</div>` : ''}</td>
           <td>${followBadge(x)}${x.follow_up_sent_at ? `<div class="small">Last reminder: ${esc(String(x.follow_up_sent_at).replace('T',' ').slice(0,16))}</div>` : ''}${x.follow_up_last_error ? `<div class="small follow-error">Failed: ${esc(String(x.follow_up_last_error).slice(0,90))}</div>` : ''}${x.follow_up_note ? `<div class="small">${esc(x.follow_up_note)}</div>` : ''}</td>
-          <td><div class="follow-actions"><button class="secondary btn-follow" data-follow="${x.id}" data-at="${esc(x.follow_up_at||'')}" data-note="${esc(x.follow_up_note||'')}" data-repeat="${esc(x.follow_up_repeat_days||2)}" data-max="${esc(x.follow_up_max??0)}">Set follow-up</button>${x.follow_up_at && !fuDone(x) && !x.replied_at ? `<button class="secondary btn-snooze" data-snooze="1" data-id="${x.id}">Snooze 1d</button><button class="secondary btn-snooze" data-snooze="3" data-id="${x.id}">Snooze 3d</button><button class="btn-done" data-done="${x.id}">Done</button>` : ''}<button class="secondary" data-reply="${x.id}">Mark replied</button></div></td>
-        </tr>`).join('') || '<tr><td colspan="5" class="empty">No sent emails.</td></tr>'}</tbody>
+        </tr>`).join('') || '<tr><td colspan="3" class="empty">No sent emails.</td></tr>'}</tbody>
       </table>
     </div>
     <div class="trk-pager">
@@ -1631,6 +1632,7 @@ async function trk() {
       <div class="stat-card"><div class="stat-top">Active follow-ups</div><div class="stat-value">${l.filter(x => x.follow_up_at && !x.replied_at && !x.follow_up_done_at && x.follow_up_reminded_at !== 'done' && !((Number(x.follow_up_max) || 0) > 0 && (Number(x.follow_up_sent_count) || 0) >= (Number(x.follow_up_max) || 0))).length}</div></div>
       <div class="stat-card"><div class="stat-top">Replies</div><div class="stat-value">${l.filter(x => x.replied_at).length}</div></div>
     </div>
+    <div class="panel" style="padding:10px 14px;margin-bottom:14px"><div class="small"><b>Outlook tracking note:</b> opens rely on a tracking pixel that Outlook Web blocks by default (unless the recipient clicks "Show images"), so open counts are unreliable for Outlook recipients. Clicks use a redirect that Microsoft Safe Links may pre-scan or block, so click counts can also be inflated or suppressed. Replies are detected by scanning the sender's mailbox every 5 minutes (In-Reply-To/Message-ID, MDTRK token, then Re: + address) and are reliable.</div></div>
     <div class="trk-panel">
       <table class="trk-table">
         <thead><tr><th>To<th>Subject<th>Engagement<th>Follow-up<th>Actions</th></thead>
