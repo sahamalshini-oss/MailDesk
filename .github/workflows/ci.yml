@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
 
@@ -23,9 +26,11 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y python3 build-essential
 
       - name: Install dependencies
-        working-directory: backend
         run: npm ci
 
       - name: Run tests
-        working-directory: backend
+        env:
+          DB_PATH: ':memory:'
+          JWT_SECRET: 'test-secret'
+          ENC_KEY: 'test-enc-key-32-bytes-long!!'
         run: npm test
