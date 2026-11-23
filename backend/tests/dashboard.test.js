@@ -1,6 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
+process.env.DB_PATH = ':memory:';
+process.env.JWT_SECRET = 'test-secret';
+process.env.ENC_KEY = 'test-enc-key-32-bytes-long!!';
+
 const { dashboardStats } = require('../server.js');
 
 test('dashboardStats calculates totals and monthly sent counts', () => {
