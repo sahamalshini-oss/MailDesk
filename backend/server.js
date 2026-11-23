@@ -7,6 +7,7 @@ const multer=require('multer');
 const storage=multer.diskStorage({destination:(req,f,cb)=>cb(null,UPLOAD_DIR),filename:(req,f,cb)=>cb(null,Date.now()+'-'+f.originalname.replace(/\s+/g,'_'))});
 const upload=multer({storage,limits:{fileSize:25*1024*1024}});
 const {JWT_SECRET:JS='dev',ENC_KEY='dev-key',MS_CLIENT_ID,MS_CLIENT_SECRET,BASE_URL='http://localhost:3000',PORT=3000,CORS_ORIGINS=''}=process.env;
+const IS_TEST = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
 const TRUSTED_ORIGINS=new Set([BASE_URL,...String(CORS_ORIGINS).split(',')].map(s=>s.trim().replace(/\/+$/,'')).filter(Boolean));
 const key=crypto.createHash('sha256').update(ENC_KEY).digest();
 const enc=t=>{const iv=crypto.randomBytes(12),c=crypto.createCipheriv('aes-256-gcm',key,iv),b=Buffer.concat([c.update(t,'utf8'),c.final()]);return [iv,c.getAuthTag(),b].map(x=>x.toString('base64')).join('.')};
@@ -88,7 +89,9 @@ const backupDb=async()=>{ let src=null; try{
   return dest;
 }catch(e){ console.error('backup failed:',e.message); return null; }
 finally{ if(src){ try{src.close();}catch{} } } };
-setInterval(()=>{ backupDb(); },BACKUP_INTERVAL_MS);
+if (!IS_TEST) {
+  setInterval(()=>{ backupDb(); },BACKUP_INTERVAL_MS);
+}
 
 const PUBLIC_UPLOADS=new Set(['GLMS - LOGO-01 (1).png','OCEANIC SHIP CHANDLERS LOGO Final (2).png','Navigator logo_page-0001.jpg','Navigator_logo.jpg__2___1_-removebg-preview.png','1794484008179-Navigator_logo.jpg__2___1_-removebg-preview.png']);
 const cspDirectives = {
@@ -393,13 +396,14 @@ async function processCampaign(id){
  const status=failedAll===total&&total>0?'failed':'sent';
  db.prepare('update campaigns set status=?,sent_at=case when ?=\'sent\' then coalesce(sent_at,current_timestamp) else sent_at end,updated_at=current_timestamp,error=? where id=?').run(status,status,failedAll?`${failedAll} recipient(s) failed`:null,id);
 }
-
-setInterval(()=>{
-  try{ const due=db.prepare("select id from campaigns where status='scheduled' and scheduled_at is not null and datetime(scheduled_at)<=datetime('now') order by id limit 20").all();
-  for(const c of due) processCampaign(c.id).catch(()=>{});
-  }catch{}
-  try{ db.prepare("delete from revoked_tokens where datetime(expires_at) <= datetime('now')").run(); }catch{}
-},15000);
+if (!IS_TEST) {
+  setInterval(()=>{
+    try{ const due=db.prepare("select id from campaigns where status='scheduled' and scheduled_at is not null and datetime(scheduled_at)<=datetime('now') order by id limit 20").all();
+    for(const c of due) processCampaign(c.id).catch(()=>{});
+    }catch{}
+    try{ db.prepare("delete from revoked_tokens where datetime(expires_at) <= datetime('now')").run(); }catch{}
+  },15000);
+}
 
 // campaigns
   app.get('/api/campaigns',auth(),(q,s)=>{ if(!requireCompany(q,s))return; const rows=db.prepare(`select c.*, (select count(*) from campaign_recipients cr where cr.campaign_id=c.id) as recipient_count, (select count(*) from campaign_recipients cr where cr.campaign_id=c.id and cr.status='sent') as sent_count, (select count(*) from campaign_recipients cr where cr.campaign_id=c.id and cr.status='failed') as failed_count, (select count(*) from campaign_recipients cr where cr.campaign_id=c.id and cr.status in ('pending','queued')) as pending_count from campaigns c where c.company_id=? order by c.id desc limit 200`).all(q.cid); s.json(rows.map(c=>({...c,error:c.status==='failed'?'Failed to send campaign.':null})))});
@@ -572,7 +576,9 @@ async function processFollowUpReminders(){
     }
   }catch(e){ console.error('follow-up reminder job failed:',e.message); }
 }
-setInterval(processFollowUpReminders,60*1000);
+if (!IS_TEST) {
+  setInterval(processFollowUpReminders,60*1000);
+}
 
 // outlook reply scanner: read active outlook mailboxes and mark replies to sent campaigns
 async function scanOutlookReplies(){
@@ -624,7 +630,9 @@ async function scanOutlookReplies(){
     }
   }catch(e){ console.error('outlook reply scan failed:',e.message); }
 }
-setInterval(()=>{ scanOutlookReplies().catch(()=>{}); },5*60*1000);
+if (!IS_TEST) {
+  setInterval(()=>{ scanOutlookReplies().catch(()=>{}); },5*60*1000);
+}
 app.post('/api/track/scan',auth('super'),async(q,s)=>{ await scanOutlookReplies(); s.json({ok:1}); });
 
 app.use((req,res)=>{ if(req.path.startsWith('/api')) return res.status(404).json({error:'Not found'}); if(fs.existsSync(path.join(FRONTEND_DIR,'index.html'))) return res.sendFile(path.join(FRONTEND_DIR,'index.html')); res.status(404).json({error:'Frontend not found'}); });

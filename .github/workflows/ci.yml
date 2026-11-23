@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: backend
@@ -32,6 +33,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
+        timeout-minutes: 3
         env:
           DB_PATH: ':memory:'
           JWT_SECRET: 'test-secret'
